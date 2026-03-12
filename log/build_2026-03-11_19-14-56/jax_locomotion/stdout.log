@@ -1,0 +1,22 @@
+-- Install configuration: ""
+-- Execute custom install script
+-- Up-to-date symlink: /home/tdp378/ros2_ws/install/jax_locomotion/share/jax_locomotion/config/gait/gait.yaml
+-- Up-to-date symlink: /home/tdp378/ros2_ws/install/jax_locomotion/share/jax_locomotion/config/joints/joints.yaml
+-- Up-to-date symlink: /home/tdp378/ros2_ws/install/jax_locomotion/share/jax_locomotion/config/links/links.yaml
+-- Symlinking: /home/tdp378/ros2_ws/install/jax_locomotion/share/jax_locomotion/config/motion/motion.yaml
+-- Up-to-date symlink: /home/tdp378/ros2_ws/install/jax_locomotion/share/jax_locomotion/config/ros_control/ros_control.yaml
+-- Up-to-date symlink: /home/tdp378/ros2_ws/install/jax_locomotion/share/ament_index/resource_index/package_run_dependencies/jax_locomotion
+-- Up-to-date symlink: /home/tdp378/ros2_ws/install/jax_locomotion/share/ament_index/resource_index/parent_prefix_path/jax_locomotion
+-- Up-to-date symlink: /home/tdp378/ros2_ws/install/jax_locomotion/share/jax_locomotion/environment/ament_prefix_path.sh
+-- Up-to-date symlink: /home/tdp378/ros2_ws/install/jax_locomotion/share/jax_locomotion/environment/ament_prefix_path.dsv
+-- Up-to-date symlink: /home/tdp378/ros2_ws/install/jax_locomotion/share/jax_locomotion/environment/path.sh
+-- Up-to-date symlink: /home/tdp378/ros2_ws/install/jax_locomotion/share/jax_locomotion/environment/path.dsv
+-- Up-to-date symlink: /home/tdp378/ros2_ws/install/jax_locomotion/share/jax_locomotion/local_setup.bash
+-- Up-to-date symlink: /home/tdp378/ros2_ws/install/jax_locomotion/share/jax_locomotion/local_setup.sh
+-- Up-to-date symlink: /home/tdp378/ros2_ws/install/jax_locomotion/share/jax_locomotion/local_setup.zsh
+-- Up-to-date symlink: /home/tdp378/ros2_ws/install/jax_locomotion/share/jax_locomotion/local_setup.dsv
+-- Symlinking: /home/tdp378/ros2_ws/install/jax_locomotion/share/jax_locomotion/package.dsv
+-- Up-to-date symlink: /home/tdp378/ros2_ws/install/jax_locomotion/share/ament_index/resource_index/packages/jax_locomotion
+-- Up-to-date symlink: /home/tdp378/ros2_ws/install/jax_locomotion/share/jax_locomotion/cmake/jax_locomotionConfig.cmake
+-- Up-to-date symlink: /home/tdp378/ros2_ws/install/jax_locomotion/share/jax_locomotion/cmake/jax_locomotionConfig-version.cmake
+-- Up-to-date symlink: /home/tdp378/ros2_ws/install/jax_locomotion/share/jax_locomotion/package.xml

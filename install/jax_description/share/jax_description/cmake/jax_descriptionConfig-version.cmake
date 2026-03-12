@@ -1,0 +1,1 @@
+/home/tdp378/ros2_ws/build/jax_description/ament_cmake_core/jax_descriptionConfig-version.cmake

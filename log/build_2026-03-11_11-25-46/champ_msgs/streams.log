@@ -1,0 +1,433 @@
+[0.008s] Invoking command in '/home/tdp378/ros2_ws/build/champ_msgs': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/jazzy DEBUGINFOD_URLS=https://debuginfod.ubuntu.com /usr/bin/cmake /home/tdp378/ros2_ws/src/champ_msgs -DAMENT_CMAKE_SYMLINK_INSTALL=1 -DCMAKE_INSTALL_PREFIX=/home/tdp378/ros2_ws/install/champ_msgs
+[0.045s] -- The C compiler identification is GNU 13.3.0
+[0.081s] -- The CXX compiler identification is GNU 13.3.0
+[0.091s] -- Detecting C compiler ABI info
+[0.149s] -- Detecting C compiler ABI info - done
+[0.155s] -- Check for working C compiler: /usr/bin/cc - skipped
+[0.155s] -- Detecting C compile features
+[0.156s] -- Detecting C compile features - done
+[0.161s] -- Detecting CXX compiler ABI info
+[0.227s] -- Detecting CXX compiler ABI info - done
+[0.233s] -- Check for working CXX compiler: /usr/bin/c++ - skipped
+[0.233s] -- Detecting CXX compile features
+[0.234s] -- Detecting CXX compile features - done
+[0.236s] -- Found ament_cmake: 2.5.5 (/opt/ros/jazzy/share/ament_cmake/cmake)
+[0.340s] -- Found Python3: /usr/bin/python3 (found version "3.12.3") found components: Interpreter 
+[0.392s] -- Override CMake install command with custom implementation using symlinks instead of copying resources
+[0.421s] -- Found rosidl_default_generators: 1.6.0 (/opt/ros/jazzy/share/rosidl_default_generators/cmake)
+[0.426s] -- Using all available rosidl_typesupport_c: rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c
+[0.468s] -- Using all available rosidl_typesupport_cpp: rosidl_typesupport_fastrtps_cpp;rosidl_typesupport_introspection_cpp
+[0.503s] -- Found rosidl_adapter: 4.6.7 (/opt/ros/jazzy/share/rosidl_adapter/cmake)
+[0.505s] -- Found std_msgs: 5.3.6 (/opt/ros/jazzy/share/std_msgs/cmake)
+[0.532s] -- Found geometry_msgs: 5.3.6 (/opt/ros/jazzy/share/geometry_msgs/cmake)
+[1.013s] -- Found ament_cmake_ros: 0.12.0 (/opt/ros/jazzy/share/ament_cmake_ros/cmake)
+[1.357s] -- Using all available rosidl_typesupport_c: rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c
+[1.799s] -- Using all available rosidl_typesupport_cpp: rosidl_typesupport_fastrtps_cpp;rosidl_typesupport_introspection_cpp
+[1.802s] -- Found python_cmake_module: 0.11.1 (/opt/ros/jazzy/share/python_cmake_module/cmake)
+[1.886s] -- Found PythonExtra: /usr/bin/python3  
+[2.165s] -- Found Python3: /usr/bin/python3 (found version "3.12.3") found components: Interpreter Development NumPy Development.Module Development.Embed 
+[2.207s] -- Found ament_lint_auto: 0.17.4 (/opt/ros/jazzy/share/ament_lint_auto/cmake)
+[2.213s] -- Configuring done (2.2s)
+[2.244s] -- Generating done (0.0s)
+[2.252s] -- Build files have been written to: /home/tdp378/ros2_ws/build/champ_msgs
+[2.258s] Invoked command in '/home/tdp378/ros2_ws/build/champ_msgs' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/jazzy DEBUGINFOD_URLS=https://debuginfod.ubuntu.com /usr/bin/cmake /home/tdp378/ros2_ws/src/champ_msgs -DAMENT_CMAKE_SYMLINK_INSTALL=1 -DCMAKE_INSTALL_PREFIX=/home/tdp378/ros2_ws/install/champ_msgs
+[2.258s] Invoking command in '/home/tdp378/ros2_ws/build/champ_msgs': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/jazzy DEBUGINFOD_URLS=https://debuginfod.ubuntu.com /usr/bin/cmake --build /home/tdp378/ros2_ws/build/champ_msgs -- -j16 -l16
+[2.291s] [  1%] [34m[1mGenerating type hashes for ROS interfaces[0m
+[2.297s] [  1%] Built target ament_cmake_python_symlink_champ_msgs
+[2.431s] running egg_info
+[2.431s] creating champ_msgs.egg-info
+[2.443s] writing champ_msgs.egg-info/PKG-INFO
+[2.443s] writing dependency_links to champ_msgs.egg-info/dependency_links.txt
+[2.443s] writing top-level names to champ_msgs.egg-info/top_level.txt
+[2.443s] writing manifest file 'champ_msgs.egg-info/SOURCES.txt'
+[2.461s] [  1%] Built target champ_msgs__rosidl_generator_type_description
+[2.468s] [  2%] [34m[1mGenerating C code for ROS interfaces[0m
+[2.474s] [  2%] [34m[1mGenerating C++ code for ROS interfaces[0m
+[2.479s] reading manifest file 'champ_msgs.egg-info/SOURCES.txt'
+[2.479s] writing manifest file 'champ_msgs.egg-info/SOURCES.txt'
+[2.496s] [  2%] Built target ament_cmake_python_build_champ_msgs_egg
+[2.814s] [  2%] Built target champ_msgs__cpp
+[2.919s] [  7%] [32mBuilding C object CMakeFiles/champ_msgs__rosidl_generator_c.dir/rosidl_generator_c/champ_msgs/msg/detail/pid__description.c.o[0m
+[2.920s] [  7%] [32mBuilding C object CMakeFiles/champ_msgs__rosidl_generator_c.dir/rosidl_generator_c/champ_msgs/msg/detail/pid__functions.c.o[0m
+[2.920s] [  7%] [32mBuilding C object CMakeFiles/champ_msgs__rosidl_generator_c.dir/rosidl_generator_c/champ_msgs/msg/detail/velocities__description.c.o[0m
+[2.920s] [  7%] [32mBuilding C object CMakeFiles/champ_msgs__rosidl_generator_c.dir/rosidl_generator_c/champ_msgs/msg/detail/velocities__type_support.c.o[0m
+[2.920s] [  7%] [32mBuilding C object CMakeFiles/champ_msgs__rosidl_generator_c.dir/rosidl_generator_c/champ_msgs/msg/detail/velocities__functions.c.o[0m
+[2.920s] [  8%] [32mBuilding C object CMakeFiles/champ_msgs__rosidl_generator_c.dir/rosidl_generator_c/champ_msgs/msg/detail/imu__description.c.o[0m
+[2.920s] [  9%] [32mBuilding C object CMakeFiles/champ_msgs__rosidl_generator_c.dir/rosidl_generator_c/champ_msgs/msg/detail/imu__functions.c.o[0m
+[2.920s] [ 10%] [32mBuilding C object CMakeFiles/champ_msgs__rosidl_generator_c.dir/rosidl_generator_c/champ_msgs/msg/detail/imu__type_support.c.o[0m
+[2.921s] [ 11%] [32mBuilding C object CMakeFiles/champ_msgs__rosidl_generator_c.dir/rosidl_generator_c/champ_msgs/msg/detail/point__description.c.o[0m
+[2.921s] [  7%] [32mBuilding C object CMakeFiles/champ_msgs__rosidl_generator_c.dir/rosidl_generator_c/champ_msgs/msg/detail/pid__type_support.c.o[0m
+[2.921s] [ 13%] [32mBuilding C object CMakeFiles/champ_msgs__rosidl_generator_c.dir/rosidl_generator_c/champ_msgs/msg/detail/point_array__description.c.o[0m
+[2.921s] [ 13%] [32mBuilding C object CMakeFiles/champ_msgs__rosidl_generator_c.dir/rosidl_generator_c/champ_msgs/msg/detail/point__functions.c.o[0m
+[2.921s] [ 13%] [32mBuilding C object CMakeFiles/champ_msgs__rosidl_generator_c.dir/rosidl_generator_c/champ_msgs/msg/detail/point_array__functions.c.o[0m
+[2.921s] [ 15%] [32mBuilding C object CMakeFiles/champ_msgs__rosidl_generator_c.dir/rosidl_generator_c/champ_msgs/msg/detail/point_array__type_support.c.o[0m
+[2.921s] [ 15%] [32mBuilding C object CMakeFiles/champ_msgs__rosidl_generator_c.dir/rosidl_generator_c/champ_msgs/msg/detail/point__type_support.c.o[0m
+[2.921s] [ 16%] [32mBuilding C object CMakeFiles/champ_msgs__rosidl_generator_c.dir/rosidl_generator_c/champ_msgs/msg/detail/joints__description.c.o[0m
+[2.949s] [ 17%] [32mBuilding C object CMakeFiles/champ_msgs__rosidl_generator_c.dir/rosidl_generator_c/champ_msgs/msg/detail/joints__functions.c.o[0m
+[2.952s] [ 18%] [32mBuilding C object CMakeFiles/champ_msgs__rosidl_generator_c.dir/rosidl_generator_c/champ_msgs/msg/detail/joints__type_support.c.o[0m
+[2.952s] [ 20%] [32mBuilding C object CMakeFiles/champ_msgs__rosidl_generator_c.dir/rosidl_generator_c/champ_msgs/msg/detail/contacts__functions.c.o[0m
+[2.952s] [ 20%] [32mBuilding C object CMakeFiles/champ_msgs__rosidl_generator_c.dir/rosidl_generator_c/champ_msgs/msg/detail/contacts__description.c.o[0m
+[2.954s] [ 21%] [32mBuilding C object CMakeFiles/champ_msgs__rosidl_generator_c.dir/rosidl_generator_c/champ_msgs/msg/detail/contacts__type_support.c.o[0m
+[2.959s] [ 22%] [32mBuilding C object CMakeFiles/champ_msgs__rosidl_generator_c.dir/rosidl_generator_c/champ_msgs/msg/detail/contacts_stamped__functions.c.o[0m
+[2.959s] [ 22%] [32mBuilding C object CMakeFiles/champ_msgs__rosidl_generator_c.dir/rosidl_generator_c/champ_msgs/msg/detail/contacts_stamped__description.c.o[0m
+[2.963s] [ 23%] [32mBuilding C object CMakeFiles/champ_msgs__rosidl_generator_c.dir/rosidl_generator_c/champ_msgs/msg/detail/contacts_stamped__type_support.c.o[0m
+[2.963s] [ 24%] [32mBuilding C object CMakeFiles/champ_msgs__rosidl_generator_c.dir/rosidl_generator_c/champ_msgs/msg/detail/pose__description.c.o[0m
+[2.963s] [ 25%] [32mBuilding C object CMakeFiles/champ_msgs__rosidl_generator_c.dir/rosidl_generator_c/champ_msgs/msg/detail/pose__functions.c.o[0m
+[2.969s] [ 26%] [32mBuilding C object CMakeFiles/champ_msgs__rosidl_generator_c.dir/rosidl_generator_c/champ_msgs/msg/detail/pose__type_support.c.o[0m
+[2.999s] [ 27%] [32m[1mLinking C shared library libchamp_msgs__rosidl_generator_c.so[0m
+[3.026s] [ 27%] Built target champ_msgs__rosidl_generator_c
+[3.033s] [ 32%] [34m[1mGenerating C++ type support for eProsima Fast-RTPS[0m
+[3.033s] [ 32%] [34m[1mGenerating C type support dispatch for ROS interfaces[0m
+[3.034s] [ 32%] [34m[1mGenerating C type support for eProsima Fast-RTPS[0m
+[3.034s] [ 32%] [34m[1mGenerating C++ type support dispatch for ROS interfaces[0m
+[3.034s] [ 32%] [34m[1mGenerating C++ introspection for ROS interfaces[0m
+[3.034s] [ 32%] [34m[1mGenerating C introspection for ROS interfaces[0m
+[3.265s] [ 35%] [32mBuilding CXX object CMakeFiles/champ_msgs__rosidl_typesupport_c.dir/rosidl_typesupport_c/champ_msgs/msg/imu__type_support.cpp.o[0m
+[3.265s] [ 35%] [32mBuilding CXX object CMakeFiles/champ_msgs__rosidl_typesupport_c.dir/rosidl_typesupport_c/champ_msgs/msg/pid__type_support.cpp.o[0m
+[3.266s] [ 35%] [32mBuilding CXX object CMakeFiles/champ_msgs__rosidl_typesupport_c.dir/rosidl_typesupport_c/champ_msgs/msg/velocities__type_support.cpp.o[0m
+[3.266s] [ 36%] [32mBuilding CXX object CMakeFiles/champ_msgs__rosidl_typesupport_c.dir/rosidl_typesupport_c/champ_msgs/msg/pose__type_support.cpp.o[0m
+[3.266s] [ 37%] [32mBuilding CXX object CMakeFiles/champ_msgs__rosidl_typesupport_c.dir/rosidl_typesupport_c/champ_msgs/msg/point__type_support.cpp.o[0m
+[3.266s] [ 38%] [32mBuilding CXX object CMakeFiles/champ_msgs__rosidl_typesupport_c.dir/rosidl_typesupport_c/champ_msgs/msg/point_array__type_support.cpp.o[0m
+[3.267s] [ 38%] [32mBuilding CXX object CMakeFiles/champ_msgs__rosidl_typesupport_c.dir/rosidl_typesupport_c/champ_msgs/msg/joints__type_support.cpp.o[0m
+[3.268s] [ 39%] [32mBuilding CXX object CMakeFiles/champ_msgs__rosidl_typesupport_c.dir/rosidl_typesupport_c/champ_msgs/msg/contacts__type_support.cpp.o[0m
+[3.268s] [ 40%] [32mBuilding CXX object CMakeFiles/champ_msgs__rosidl_typesupport_c.dir/rosidl_typesupport_c/champ_msgs/msg/contacts_stamped__type_support.cpp.o[0m
+[3.277s] [ 43%] [32mBuilding CXX object CMakeFiles/champ_msgs__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/champ_msgs/msg/velocities__type_support.cpp.o[0m
+[3.277s] [ 43%] [32mBuilding CXX object CMakeFiles/champ_msgs__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/champ_msgs/msg/imu__type_support.cpp.o[0m
+[3.277s] [ 43%] [32mBuilding CXX object CMakeFiles/champ_msgs__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/champ_msgs/msg/pid__type_support.cpp.o[0m
+[3.308s] [ 44%] [32mBuilding CXX object CMakeFiles/champ_msgs__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/champ_msgs/msg/joints__type_support.cpp.o[0m
+[3.309s] [ 44%] [32mBuilding CXX object CMakeFiles/champ_msgs__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/champ_msgs/msg/point__type_support.cpp.o[0m
+[3.310s] [ 46%] [32mBuilding CXX object CMakeFiles/champ_msgs__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/champ_msgs/msg/point_array__type_support.cpp.o[0m
+[3.310s] [ 46%] [32mBuilding CXX object CMakeFiles/champ_msgs__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/champ_msgs/msg/contacts__type_support.cpp.o[0m
+[3.310s] [ 47%] [32mBuilding CXX object CMakeFiles/champ_msgs__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/champ_msgs/msg/contacts_stamped__type_support.cpp.o[0m
+[3.310s] [ 48%] [32mBuilding CXX object CMakeFiles/champ_msgs__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/champ_msgs/msg/pose__type_support.cpp.o[0m
+[3.315s] [ 49%] [32m[1mLinking CXX shared library libchamp_msgs__rosidl_typesupport_c.so[0m
+[3.363s] [ 49%] Built target champ_msgs__rosidl_typesupport_c
+[3.406s] [ 50%] [32mBuilding CXX object CMakeFiles/champ_msgs__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/champ_msgs/msg/detail/imu__type_support.cpp.o[0m
+[3.407s] [ 51%] [32mBuilding CXX object CMakeFiles/champ_msgs__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/champ_msgs/msg/detail/pid__type_support.cpp.o[0m
+[3.407s] [ 52%] [32mBuilding CXX object CMakeFiles/champ_msgs__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/champ_msgs/msg/detail/velocities__type_support.cpp.o[0m
+[3.409s] [ 53%] [32mBuilding CXX object CMakeFiles/champ_msgs__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/champ_msgs/msg/detail/point__type_support.cpp.o[0m
+[3.423s] [ 54%] [32mBuilding C object CMakeFiles/champ_msgs__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/champ_msgs/msg/detail/velocities__type_support.c.o[0m
+[3.464s] [ 55%] [32mBuilding C object CMakeFiles/champ_msgs__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/champ_msgs/msg/detail/pid__type_support.c.o[0m
+[3.513s] [ 55%] [32mBuilding C object CMakeFiles/champ_msgs__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/champ_msgs/msg/detail/imu__type_support.c.o[0m
+[3.561s] [ 56%] [32mBuilding C object CMakeFiles/champ_msgs__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/champ_msgs/msg/detail/point__type_support.c.o[0m
+[3.605s] [ 57%] [32mBuilding C object CMakeFiles/champ_msgs__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/champ_msgs/msg/detail/point_array__type_support.c.o[0m
+[3.615s] [ 58%] [32mBuilding CXX object CMakeFiles/champ_msgs__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/champ_msgs/msg/detail/point_array__type_support.cpp.o[0m
+[3.619s] [ 59%] [32mBuilding CXX object CMakeFiles/champ_msgs__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/champ_msgs/msg/detail/joints__type_support.cpp.o[0m
+[3.630s] [ 60%] [32mBuilding C object CMakeFiles/champ_msgs__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/champ_msgs/msg/detail/joints__type_support.c.o[0m
+[3.650s] [ 61%] [32mBuilding CXX object CMakeFiles/champ_msgs__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/champ_msgs/msg/detail/contacts_stamped__type_support.cpp.o[0m
+[3.650s] [ 62%] [32mBuilding CXX object CMakeFiles/champ_msgs__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/champ_msgs/msg/detail/contacts__type_support.cpp.o[0m
+[3.650s] [ 63%] [32mBuilding CXX object CMakeFiles/champ_msgs__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/champ_msgs/msg/detail/pose__type_support.cpp.o[0m
+[3.650s] [ 63%] [32mBuilding C object CMakeFiles/champ_msgs__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/champ_msgs/msg/detail/contacts_stamped__type_support.c.o[0m
+[3.651s] [ 64%] [32mBuilding C object CMakeFiles/champ_msgs__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/champ_msgs/msg/detail/contacts__type_support.c.o[0m
+[3.665s] [ 65%] [32m[1mLinking CXX shared library libchamp_msgs__rosidl_typesupport_cpp.so[0m
+[3.675s] [ 66%] [32mBuilding C object CMakeFiles/champ_msgs__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/champ_msgs/msg/detail/pose__type_support.c.o[0m
+[3.696s] [ 67%] [32mBuilding CXX object CMakeFiles/champ_msgs__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/champ_msgs/msg/detail/dds_fastrtps/velocities__type_support.cpp.o[0m
+[3.696s] [ 67%] [32mBuilding CXX object CMakeFiles/champ_msgs__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/champ_msgs/msg/detail/velocities__type_support_c.cpp.o[0m
+[3.696s] [ 68%] [32mBuilding CXX object CMakeFiles/champ_msgs__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/champ_msgs/msg/detail/pid__type_support_c.cpp.o[0m
+[3.696s] [ 69%] [32mBuilding CXX object CMakeFiles/champ_msgs__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/champ_msgs/msg/detail/dds_fastrtps/imu__type_support.cpp.o[0m
+[3.696s] [ 70%] [32mBuilding CXX object CMakeFiles/champ_msgs__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/champ_msgs/msg/detail/dds_fastrtps/pid__type_support.cpp.o[0m
+[3.716s] [ 70%] Built target champ_msgs__rosidl_typesupport_cpp
+[3.719s] [ 71%] [32m[1mLinking C shared library libchamp_msgs__rosidl_typesupport_introspection_c.so[0m
+[3.726s] [ 72%] [32mBuilding CXX object CMakeFiles/champ_msgs__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/champ_msgs/msg/detail/imu__type_support_c.cpp.o[0m
+[3.751s] [ 73%] [32mBuilding CXX object CMakeFiles/champ_msgs__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/champ_msgs/msg/detail/dds_fastrtps/point__type_support.cpp.o[0m
+[3.751s] [ 74%] [32mBuilding CXX object CMakeFiles/champ_msgs__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/champ_msgs/msg/detail/point__type_support_c.cpp.o[0m
+[3.751s] [ 75%] [32mBuilding CXX object CMakeFiles/champ_msgs__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/champ_msgs/msg/detail/dds_fastrtps/point_array__type_support.cpp.o[0m
+[3.753s] [ 75%] [32mBuilding CXX object CMakeFiles/champ_msgs__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/champ_msgs/msg/detail/dds_fastrtps/joints__type_support.cpp.o[0m
+[3.759s] [ 75%] Built target champ_msgs__rosidl_typesupport_introspection_c
+[3.770s] [ 76%] [32mBuilding CXX object CMakeFiles/champ_msgs__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/champ_msgs/msg/detail/dds_fastrtps/contacts__type_support.cpp.o[0m
+[3.957s] [ 77%] [32mBuilding CXX object CMakeFiles/champ_msgs__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/champ_msgs/msg/detail/dds_fastrtps/contacts_stamped__type_support.cpp.o[0m
+[3.998s] [ 78%] [32mBuilding CXX object CMakeFiles/champ_msgs__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/champ_msgs/msg/detail/point_array__type_support_c.cpp.o[0m
+[4.003s] [ 79%] [32mBuilding CXX object CMakeFiles/champ_msgs__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/champ_msgs/msg/detail/dds_fastrtps/pose__type_support.cpp.o[0m
+[4.064s] [ 80%] [32mBuilding CXX object CMakeFiles/champ_msgs__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/champ_msgs/msg/detail/joints__type_support_c.cpp.o[0m
+[4.085s] [ 81%] [32m[1mLinking CXX shared library libchamp_msgs__rosidl_typesupport_introspection_cpp.so[0m
+[4.188s] [ 81%] Built target champ_msgs__rosidl_typesupport_introspection_cpp
+[4.199s] [ 82%] [32mBuilding CXX object CMakeFiles/champ_msgs__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/champ_msgs/msg/detail/contacts__type_support_c.cpp.o[0m
+[4.230s] [ 83%] [32mBuilding CXX object CMakeFiles/champ_msgs__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/champ_msgs/msg/detail/contacts_stamped__type_support_c.cpp.o[0m
+[4.231s] [ 83%] [32mBuilding CXX object CMakeFiles/champ_msgs__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/champ_msgs/msg/detail/pose__type_support_c.cpp.o[0m
+[4.417s] [ 84%] [32m[1mLinking CXX shared library libchamp_msgs__rosidl_typesupport_fastrtps_cpp.so[0m
+[4.469s] [ 84%] Built target champ_msgs__rosidl_typesupport_fastrtps_cpp
+[4.546s] [ 85%] [32m[1mLinking CXX shared library libchamp_msgs__rosidl_typesupport_fastrtps_c.so[0m
+[4.585s] [ 85%] Built target champ_msgs__rosidl_typesupport_fastrtps_c
+[4.598s] [ 85%] Built target champ_msgs
+[4.615s] [ 86%] [34m[1mGenerating Python code for ROS interfaces[0m
+[5.102s] [ 86%] Built target champ_msgs__py
+[5.118s] [ 89%] [32mBuilding C object CMakeFiles/champ_msgs__rosidl_generator_py.dir/rosidl_generator_py/champ_msgs/msg/_point_array_s.c.o[0m
+[5.118s] [ 89%] [32mBuilding C object CMakeFiles/champ_msgs__rosidl_generator_py.dir/rosidl_generator_py/champ_msgs/msg/_point_s.c.o[0m
+[5.118s] [ 89%] [32mBuilding C object CMakeFiles/champ_msgs__rosidl_generator_py.dir/rosidl_generator_py/champ_msgs/msg/_contacts_s.c.o[0m
+[5.119s] [ 90%] [32mBuilding C object CMakeFiles/champ_msgs__rosidl_generator_py.dir/rosidl_generator_py/champ_msgs/msg/_pid_s.c.o[0m
+[5.119s] [ 90%] [32mBuilding C object CMakeFiles/champ_msgs__rosidl_generator_py.dir/rosidl_generator_py/champ_msgs/msg/_joints_s.c.o[0m
+[5.119s] [ 91%] [32mBuilding C object CMakeFiles/champ_msgs__rosidl_generator_py.dir/rosidl_generator_py/champ_msgs/msg/_imu_s.c.o[0m
+[5.119s] [ 92%] [32mBuilding C object CMakeFiles/champ_msgs__rosidl_generator_py.dir/rosidl_generator_py/champ_msgs/msg/_contacts_stamped_s.c.o[0m
+[5.119s] [ 93%] [32mBuilding C object CMakeFiles/champ_msgs__rosidl_generator_py.dir/rosidl_generator_py/champ_msgs/msg/_velocities_s.c.o[0m
+[5.120s] [ 94%] [32mBuilding C object CMakeFiles/champ_msgs__rosidl_generator_py.dir/rosidl_generator_py/champ_msgs/msg/_pose_s.c.o[0m
+[5.235s] [ 94%] [32m[1mLinking C shared library libchamp_msgs__rosidl_generator_py.so[0m
+[5.264s] [ 94%] Built target champ_msgs__rosidl_generator_py
+[5.278s] [ 97%] [32mBuilding C object CMakeFiles/champ_msgs_s__rosidl_typesupport_c.dir/rosidl_generator_py/champ_msgs/_champ_msgs_s.ep.rosidl_typesupport_c.c.o[0m
+[5.278s] [ 97%] [32mBuilding C object CMakeFiles/champ_msgs_s__rosidl_typesupport_introspection_c.dir/rosidl_generator_py/champ_msgs/_champ_msgs_s.ep.rosidl_typesupport_introspection_c.c.o[0m
+[5.278s] [ 97%] [32mBuilding C object CMakeFiles/champ_msgs_s__rosidl_typesupport_fastrtps_c.dir/rosidl_generator_py/champ_msgs/_champ_msgs_s.ep.rosidl_typesupport_fastrtps_c.c.o[0m
+[5.355s] [ 99%] [32m[1mLinking C shared module rosidl_generator_py/champ_msgs/champ_msgs_s__rosidl_typesupport_c.so[0m
+[5.355s] [ 99%] [32m[1mLinking C shared module rosidl_generator_py/champ_msgs/champ_msgs_s__rosidl_typesupport_introspection_c.so[0m
+[5.356s] [100%] [32m[1mLinking C shared module rosidl_generator_py/champ_msgs/champ_msgs_s__rosidl_typesupport_fastrtps_c.so[0m
+[5.376s] [100%] Built target champ_msgs_s__rosidl_typesupport_c
+[5.376s] [100%] Built target champ_msgs_s__rosidl_typesupport_introspection_c
+[5.376s] [100%] Built target champ_msgs_s__rosidl_typesupport_fastrtps_c
+[5.383s] Invoked command in '/home/tdp378/ros2_ws/build/champ_msgs' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/jazzy DEBUGINFOD_URLS=https://debuginfod.ubuntu.com /usr/bin/cmake --build /home/tdp378/ros2_ws/build/champ_msgs -- -j16 -l16
+[5.384s] Invoking command in '/home/tdp378/ros2_ws/build/champ_msgs': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/jazzy DEBUGINFOD_URLS=https://debuginfod.ubuntu.com /usr/bin/cmake --install /home/tdp378/ros2_ws/build/champ_msgs
+[5.389s] -- Install configuration: ""
+[5.390s] -- Execute custom install script
+[5.390s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/share/ament_index/resource_index/rosidl_interfaces/champ_msgs
+[5.396s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/share/champ_msgs/msg/Velocities.json
+[5.401s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/share/champ_msgs/msg/PID.json
+[5.408s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/share/champ_msgs/msg/Imu.json
+[5.414s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/share/champ_msgs/msg/Point.json
+[5.419s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/share/champ_msgs/msg/PointArray.json
+[5.425s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/share/champ_msgs/msg/Joints.json
+[5.430s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/share/champ_msgs/msg/Contacts.json
+[5.435s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/share/champ_msgs/msg/ContactsStamped.json
+[5.440s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/share/champ_msgs/msg/Pose.json
+[5.445s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/contacts.h
+[5.450s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/contacts_stamped.h
+[5.456s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/contacts__functions.h
+[5.461s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/contacts__struct.h
+[5.466s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/contacts__type_support.h
+[5.471s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/contacts_stamped__functions.h
+[5.476s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/contacts_stamped__struct.h
+[5.483s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/contacts_stamped__type_support.h
+[5.490s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/imu__functions.h
+[5.497s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/imu__struct.h
+[5.503s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/imu__type_support.h
+[5.510s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/joints__functions.h
+[5.517s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/joints__struct.h
+[5.524s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/joints__type_support.h
+[5.531s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/pid__functions.h
+[5.538s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/pid__struct.h
+[5.545s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/pid__type_support.h
+[5.554s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/point__functions.h
+[5.560s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/point__struct.h
+[5.565s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/point__type_support.h
+[5.570s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/point_array__functions.h
+[5.575s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/point_array__struct.h
+[5.583s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/point_array__type_support.h
+[5.591s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/pose__functions.h
+[5.602s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/pose__struct.h
+[5.612s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/pose__type_support.h
+[5.626s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/velocities__functions.h
+[5.637s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/velocities__struct.h
+[5.645s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/velocities__type_support.h
+[5.650s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/imu.h
+[5.657s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/joints.h
+[5.665s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/pid.h
+[5.671s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/point.h
+[5.677s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/point_array.h
+[5.683s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/pose.h
+[5.689s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/rosidl_generator_c__visibility_control.h
+[5.694s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/velocities.h
+[5.699s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/share/champ_msgs/environment/library_path.sh
+[5.705s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/share/champ_msgs/environment/library_path.dsv
+[5.713s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/contacts__rosidl_typesupport_fastrtps_c.h
+[5.718s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/contacts_stamped__rosidl_typesupport_fastrtps_c.h
+[5.723s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/imu__rosidl_typesupport_fastrtps_c.h
+[5.728s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/joints__rosidl_typesupport_fastrtps_c.h
+[5.733s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/pid__rosidl_typesupport_fastrtps_c.h
+[5.738s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/point__rosidl_typesupport_fastrtps_c.h
+[5.744s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/point_array__rosidl_typesupport_fastrtps_c.h
+[5.749s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/pose__rosidl_typesupport_fastrtps_c.h
+[5.754s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/velocities__rosidl_typesupport_fastrtps_c.h
+[5.759s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/rosidl_typesupport_fastrtps_c__visibility_control.h
+[5.764s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/contacts__rosidl_typesupport_introspection_c.h
+[5.769s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/contacts_stamped__rosidl_typesupport_introspection_c.h
+[5.775s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/imu__rosidl_typesupport_introspection_c.h
+[5.781s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/joints__rosidl_typesupport_introspection_c.h
+[5.789s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/pid__rosidl_typesupport_introspection_c.h
+[5.797s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/point__rosidl_typesupport_introspection_c.h
+[5.804s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/point_array__rosidl_typesupport_introspection_c.h
+[5.814s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/pose__rosidl_typesupport_introspection_c.h
+[5.825s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/velocities__rosidl_typesupport_introspection_c.h
+[5.835s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/rosidl_typesupport_introspection_c__visibility_control.h
+[5.846s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/contacts.hpp
+[5.852s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/contacts_stamped.hpp
+[5.857s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/contacts__builder.hpp
+[5.862s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/contacts__struct.hpp
+[5.867s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/contacts__traits.hpp
+[5.872s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/contacts__type_support.hpp
+[5.877s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/contacts_stamped__builder.hpp
+[5.882s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/contacts_stamped__struct.hpp
+[5.887s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/contacts_stamped__traits.hpp
+[5.892s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/contacts_stamped__type_support.hpp
+[5.901s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/imu__builder.hpp
+[5.916s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/imu__struct.hpp
+[5.928s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/imu__traits.hpp
+[5.940s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/imu__type_support.hpp
+[5.951s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/joints__builder.hpp
+[5.964s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/joints__struct.hpp
+[5.974s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/joints__traits.hpp
+[5.983s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/joints__type_support.hpp
+[5.992s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/pid__builder.hpp
+[6.002s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/pid__struct.hpp
+[6.020s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/pid__traits.hpp
+[6.036s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/pid__type_support.hpp
+[6.048s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/point__builder.hpp
+[6.057s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/point__struct.hpp
+[6.066s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/point__traits.hpp
+[6.073s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/point__type_support.hpp
+[6.084s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/point_array__builder.hpp
+[6.091s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/point_array__struct.hpp
+[6.099s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/point_array__traits.hpp
+[6.105s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/point_array__type_support.hpp
+[6.113s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/pose__builder.hpp
+[6.120s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/pose__struct.hpp
+[6.130s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/pose__traits.hpp
+[6.142s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/pose__type_support.hpp
+[6.151s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/velocities__builder.hpp
+[6.157s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/velocities__struct.hpp
+[6.165s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/velocities__traits.hpp
+[6.174s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/velocities__type_support.hpp
+[6.181s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/imu.hpp
+[6.187s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/joints.hpp
+[6.194s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/pid.hpp
+[6.199s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/point.hpp
+[6.205s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/point_array.hpp
+[6.211s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/pose.hpp
+[6.219s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/rosidl_generator_cpp__visibility_control.hpp
+[6.226s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/velocities.hpp
+[6.236s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/contacts__rosidl_typesupport_fastrtps_cpp.hpp
+[6.243s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/contacts_stamped__rosidl_typesupport_fastrtps_cpp.hpp
+[6.253s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/imu__rosidl_typesupport_fastrtps_cpp.hpp
+[6.262s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/joints__rosidl_typesupport_fastrtps_cpp.hpp
+[6.270s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/pid__rosidl_typesupport_fastrtps_cpp.hpp
+[6.277s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/point__rosidl_typesupport_fastrtps_cpp.hpp
+[6.283s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/point_array__rosidl_typesupport_fastrtps_cpp.hpp
+[6.290s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/pose__rosidl_typesupport_fastrtps_cpp.hpp
+[6.298s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/velocities__rosidl_typesupport_fastrtps_cpp.hpp
+[6.306s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/rosidl_typesupport_fastrtps_cpp__visibility_control.h
+[6.320s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/contacts__rosidl_typesupport_introspection_cpp.hpp
+[6.329s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/contacts_stamped__rosidl_typesupport_introspection_cpp.hpp
+[6.334s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/imu__rosidl_typesupport_introspection_cpp.hpp
+[6.341s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/joints__rosidl_typesupport_introspection_cpp.hpp
+[6.347s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/pid__rosidl_typesupport_introspection_cpp.hpp
+[6.355s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/point__rosidl_typesupport_introspection_cpp.hpp
+[6.362s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/point_array__rosidl_typesupport_introspection_cpp.hpp
+[6.372s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/pose__rosidl_typesupport_introspection_cpp.hpp
+[6.381s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/include/champ_msgs/champ_msgs/msg/detail/velocities__rosidl_typesupport_introspection_cpp.hpp
+[6.390s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/share/champ_msgs/environment/pythonpath.sh
+[6.397s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/share/champ_msgs/environment/pythonpath.dsv
+[6.406s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/lib/python3.12/site-packages/champ_msgs-0.1.0-py3.12.egg-info/PKG-INFO
+[6.421s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/lib/python3.12/site-packages/champ_msgs-0.1.0-py3.12.egg-info/SOURCES.txt
+[6.427s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/lib/python3.12/site-packages/champ_msgs-0.1.0-py3.12.egg-info/dependency_links.txt
+[6.432s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/lib/python3.12/site-packages/champ_msgs-0.1.0-py3.12.egg-info/top_level.txt
+[6.440s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/lib/python3.12/site-packages/champ_msgs/__init__.py
+[6.448s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/lib/python3.12/site-packages/champ_msgs/_champ_msgs_s.ep.rosidl_typesupport_c.c
+[6.454s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/lib/python3.12/site-packages/champ_msgs/_champ_msgs_s.ep.rosidl_typesupport_fastrtps_c.c
+[6.460s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/lib/python3.12/site-packages/champ_msgs/_champ_msgs_s.ep.rosidl_typesupport_introspection_c.c
+[6.465s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/lib/python3.12/site-packages/champ_msgs/champ_msgs_s__rosidl_typesupport_c.so
+[6.470s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/lib/python3.12/site-packages/champ_msgs/champ_msgs_s__rosidl_typesupport_fastrtps_c.so
+[6.475s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/lib/python3.12/site-packages/champ_msgs/champ_msgs_s__rosidl_typesupport_introspection_c.so
+[6.480s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/lib/python3.12/site-packages/champ_msgs/msg/__init__.py
+[6.486s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/lib/python3.12/site-packages/champ_msgs/msg/_contacts.py
+[6.490s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/lib/python3.12/site-packages/champ_msgs/msg/_contacts_s.c
+[6.495s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/lib/python3.12/site-packages/champ_msgs/msg/_contacts_stamped.py
+[6.500s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/lib/python3.12/site-packages/champ_msgs/msg/_contacts_stamped_s.c
+[6.505s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/lib/python3.12/site-packages/champ_msgs/msg/_imu.py
+[6.512s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/lib/python3.12/site-packages/champ_msgs/msg/_imu_s.c
+[6.519s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/lib/python3.12/site-packages/champ_msgs/msg/_joints.py
+[6.525s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/lib/python3.12/site-packages/champ_msgs/msg/_joints_s.c
+[6.532s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/lib/python3.12/site-packages/champ_msgs/msg/_pid.py
+[6.538s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/lib/python3.12/site-packages/champ_msgs/msg/_pid_s.c
+[6.546s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/lib/python3.12/site-packages/champ_msgs/msg/_point.py
+[6.551s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/lib/python3.12/site-packages/champ_msgs/msg/_point_array.py
+[6.556s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/lib/python3.12/site-packages/champ_msgs/msg/_point_array_s.c
+[6.561s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/lib/python3.12/site-packages/champ_msgs/msg/_point_s.c
+[6.566s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/lib/python3.12/site-packages/champ_msgs/msg/_pose.py
+[6.572s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/lib/python3.12/site-packages/champ_msgs/msg/_pose_s.c
+[6.577s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/lib/python3.12/site-packages/champ_msgs/msg/_velocities.py
+[6.584s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/lib/python3.12/site-packages/champ_msgs/msg/_velocities_s.c
+[6.591s] -- Up-to-date symlink: /home/tdp378/ros2_ws/install/champ_msgs/lib/python3.12/site-packages/champ_msgs/champ_msgs_s__rosidl_typesupport_fastrtps_c.so
+[6.591s] -- Up-to-date symlink: /home/tdp378/ros2_ws/install/champ_msgs/lib/python3.12/site-packages/champ_msgs/champ_msgs_s__rosidl_typesupport_introspection_c.so
+[6.591s] -- Up-to-date symlink: /home/tdp378/ros2_ws/install/champ_msgs/lib/python3.12/site-packages/champ_msgs/champ_msgs_s__rosidl_typesupport_c.so
+[6.592s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/share/champ_msgs/msg/Velocities.idl
+[6.598s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/share/champ_msgs/msg/PID.idl
+[6.605s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/share/champ_msgs/msg/Imu.idl
+[6.612s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/share/champ_msgs/msg/Point.idl
+[6.617s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/share/champ_msgs/msg/PointArray.idl
+[6.622s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/share/champ_msgs/msg/Joints.idl
+[6.627s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/share/champ_msgs/msg/Contacts.idl
+[6.632s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/share/champ_msgs/msg/ContactsStamped.idl
+[6.637s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/share/champ_msgs/msg/Pose.idl
+[6.644s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/share/champ_msgs/msg/Velocities.msg
+[6.651s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/share/champ_msgs/msg/PID.msg
+[6.661s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/share/champ_msgs/msg/Imu.msg
+[6.667s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/share/champ_msgs/msg/Point.msg
+[6.673s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/share/champ_msgs/msg/PointArray.msg
+[6.678s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/share/champ_msgs/msg/Joints.msg
+[6.683s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/share/champ_msgs/msg/Contacts.msg
+[6.688s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/share/champ_msgs/msg/ContactsStamped.msg
+[6.693s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/share/champ_msgs/msg/Pose.msg
+[6.698s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/share/ament_index/resource_index/package_run_dependencies/champ_msgs
+[6.703s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/share/ament_index/resource_index/parent_prefix_path/champ_msgs
+[6.710s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/share/champ_msgs/environment/ament_prefix_path.sh
+[6.719s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/share/champ_msgs/environment/ament_prefix_path.dsv
+[6.732s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/share/champ_msgs/environment/path.sh
+[6.741s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/share/champ_msgs/environment/path.dsv
+[6.747s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/share/champ_msgs/local_setup.bash
+[6.753s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/share/champ_msgs/local_setup.sh
+[6.758s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/share/champ_msgs/local_setup.zsh
+[6.765s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/share/champ_msgs/local_setup.dsv
+[6.777s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/share/champ_msgs/package.dsv
+[6.785s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/share/ament_index/resource_index/packages/champ_msgs
+[6.791s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/share/champ_msgs/cmake/rosidl_cmake-extras.cmake
+[6.798s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/share/champ_msgs/cmake/ament_cmake_export_dependencies-extras.cmake
+[6.804s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/share/champ_msgs/cmake/ament_cmake_export_include_directories-extras.cmake
+[6.810s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/share/champ_msgs/cmake/ament_cmake_export_libraries-extras.cmake
+[6.815s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/share/champ_msgs/cmake/ament_cmake_export_targets-extras.cmake
+[6.821s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/share/champ_msgs/cmake/rosidl_cmake_export_typesupport_targets-extras.cmake
+[6.829s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/share/champ_msgs/cmake/rosidl_cmake_export_typesupport_libraries-extras.cmake
+[6.840s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/share/champ_msgs/cmake/champ_msgsConfig.cmake
+[6.847s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/share/champ_msgs/cmake/champ_msgsConfig-version.cmake
+[6.852s] -- Symlinking: /home/tdp378/ros2_ws/install/champ_msgs/share/champ_msgs/package.xml
+[6.857s] -- Installing: /home/tdp378/ros2_ws/install/champ_msgs/lib/libchamp_msgs__rosidl_generator_c.so
+[6.857s] -- Set non-toolchain portion of runtime path of "/home/tdp378/ros2_ws/install/champ_msgs/lib/libchamp_msgs__rosidl_generator_c.so" to ""
+[6.857s] -- Installing: /home/tdp378/ros2_ws/install/champ_msgs/lib/libchamp_msgs__rosidl_typesupport_fastrtps_c.so
+[6.858s] -- Set non-toolchain portion of runtime path of "/home/tdp378/ros2_ws/install/champ_msgs/lib/libchamp_msgs__rosidl_typesupport_fastrtps_c.so" to ""
+[6.858s] -- Installing: /home/tdp378/ros2_ws/install/champ_msgs/lib/libchamp_msgs__rosidl_typesupport_introspection_c.so
+[6.858s] -- Set non-toolchain portion of runtime path of "/home/tdp378/ros2_ws/install/champ_msgs/lib/libchamp_msgs__rosidl_typesupport_introspection_c.so" to ""
+[6.858s] -- Installing: /home/tdp378/ros2_ws/install/champ_msgs/lib/libchamp_msgs__rosidl_typesupport_c.so
+[6.858s] -- Set non-toolchain portion of runtime path of "/home/tdp378/ros2_ws/install/champ_msgs/lib/libchamp_msgs__rosidl_typesupport_c.so" to ""
+[6.858s] -- Installing: /home/tdp378/ros2_ws/install/champ_msgs/lib/libchamp_msgs__rosidl_typesupport_fastrtps_cpp.so
+[6.858s] -- Set non-toolchain portion of runtime path of "/home/tdp378/ros2_ws/install/champ_msgs/lib/libchamp_msgs__rosidl_typesupport_fastrtps_cpp.so" to ""
+[6.858s] -- Installing: /home/tdp378/ros2_ws/install/champ_msgs/lib/libchamp_msgs__rosidl_typesupport_introspection_cpp.so
+[6.859s] -- Set non-toolchain portion of runtime path of "/home/tdp378/ros2_ws/install/champ_msgs/lib/libchamp_msgs__rosidl_typesupport_introspection_cpp.so" to ""
+[6.859s] -- Installing: /home/tdp378/ros2_ws/install/champ_msgs/lib/libchamp_msgs__rosidl_typesupport_cpp.so
+[6.859s] -- Set non-toolchain portion of runtime path of "/home/tdp378/ros2_ws/install/champ_msgs/lib/libchamp_msgs__rosidl_typesupport_cpp.so" to ""
+[6.890s] Listing '/home/tdp378/ros2_ws/install/champ_msgs/lib/python3.12/site-packages/champ_msgs'...
+[6.890s] Compiling '/home/tdp378/ros2_ws/install/champ_msgs/lib/python3.12/site-packages/champ_msgs/__init__.py'...
+[6.890s] Listing '/home/tdp378/ros2_ws/install/champ_msgs/lib/python3.12/site-packages/champ_msgs/msg'...
+[6.890s] Compiling '/home/tdp378/ros2_ws/install/champ_msgs/lib/python3.12/site-packages/champ_msgs/msg/__init__.py'...
+[6.890s] Compiling '/home/tdp378/ros2_ws/install/champ_msgs/lib/python3.12/site-packages/champ_msgs/msg/_contacts.py'...
+[6.890s] Compiling '/home/tdp378/ros2_ws/install/champ_msgs/lib/python3.12/site-packages/champ_msgs/msg/_contacts_stamped.py'...
+[6.890s] Compiling '/home/tdp378/ros2_ws/install/champ_msgs/lib/python3.12/site-packages/champ_msgs/msg/_imu.py'...
+[6.890s] Compiling '/home/tdp378/ros2_ws/install/champ_msgs/lib/python3.12/site-packages/champ_msgs/msg/_joints.py'...
+[6.890s] Compiling '/home/tdp378/ros2_ws/install/champ_msgs/lib/python3.12/site-packages/champ_msgs/msg/_pid.py'...
+[6.890s] Compiling '/home/tdp378/ros2_ws/install/champ_msgs/lib/python3.12/site-packages/champ_msgs/msg/_point.py'...
+[6.890s] Compiling '/home/tdp378/ros2_ws/install/champ_msgs/lib/python3.12/site-packages/champ_msgs/msg/_point_array.py'...
+[6.890s] Compiling '/home/tdp378/ros2_ws/install/champ_msgs/lib/python3.12/site-packages/champ_msgs/msg/_pose.py'...
+[6.890s] Compiling '/home/tdp378/ros2_ws/install/champ_msgs/lib/python3.12/site-packages/champ_msgs/msg/_velocities.py'...
+[6.893s] -- Installing: /home/tdp378/ros2_ws/install/champ_msgs/lib/libchamp_msgs__rosidl_generator_py.so
+[6.893s] -- Set non-toolchain portion of runtime path of "/home/tdp378/ros2_ws/install/champ_msgs/lib/libchamp_msgs__rosidl_generator_py.so" to ""
+[6.893s] -- Installing: /home/tdp378/ros2_ws/install/champ_msgs/share/champ_msgs/cmake/export_champ_msgs__rosidl_generator_cExport.cmake
+[6.893s] -- Installing: /home/tdp378/ros2_ws/install/champ_msgs/share/champ_msgs/cmake/export_champ_msgs__rosidl_generator_cExport-noconfig.cmake
+[6.893s] -- Installing: /home/tdp378/ros2_ws/install/champ_msgs/share/champ_msgs/cmake/export_champ_msgs__rosidl_typesupport_fastrtps_cExport.cmake
+[6.893s] -- Installing: /home/tdp378/ros2_ws/install/champ_msgs/share/champ_msgs/cmake/export_champ_msgs__rosidl_typesupport_fastrtps_cExport-noconfig.cmake
+[6.893s] -- Installing: /home/tdp378/ros2_ws/install/champ_msgs/share/champ_msgs/cmake/champ_msgs__rosidl_typesupport_introspection_cExport.cmake
+[6.893s] -- Installing: /home/tdp378/ros2_ws/install/champ_msgs/share/champ_msgs/cmake/champ_msgs__rosidl_typesupport_introspection_cExport-noconfig.cmake
+[6.893s] -- Installing: /home/tdp378/ros2_ws/install/champ_msgs/share/champ_msgs/cmake/champ_msgs__rosidl_typesupport_cExport.cmake
+[6.893s] -- Installing: /home/tdp378/ros2_ws/install/champ_msgs/share/champ_msgs/cmake/champ_msgs__rosidl_typesupport_cExport-noconfig.cmake
+[6.894s] -- Installing: /home/tdp378/ros2_ws/install/champ_msgs/share/champ_msgs/cmake/export_champ_msgs__rosidl_generator_cppExport.cmake
+[6.894s] -- Installing: /home/tdp378/ros2_ws/install/champ_msgs/share/champ_msgs/cmake/export_champ_msgs__rosidl_typesupport_fastrtps_cppExport.cmake
+[6.894s] -- Installing: /home/tdp378/ros2_ws/install/champ_msgs/share/champ_msgs/cmake/export_champ_msgs__rosidl_typesupport_fastrtps_cppExport-noconfig.cmake
+[6.894s] -- Installing: /home/tdp378/ros2_ws/install/champ_msgs/share/champ_msgs/cmake/champ_msgs__rosidl_typesupport_introspection_cppExport.cmake
+[6.894s] -- Installing: /home/tdp378/ros2_ws/install/champ_msgs/share/champ_msgs/cmake/champ_msgs__rosidl_typesupport_introspection_cppExport-noconfig.cmake
+[6.894s] -- Installing: /home/tdp378/ros2_ws/install/champ_msgs/share/champ_msgs/cmake/champ_msgs__rosidl_typesupport_cppExport.cmake
+[6.894s] -- Installing: /home/tdp378/ros2_ws/install/champ_msgs/share/champ_msgs/cmake/champ_msgs__rosidl_typesupport_cppExport-noconfig.cmake
+[6.894s] -- Installing: /home/tdp378/ros2_ws/install/champ_msgs/share/champ_msgs/cmake/export_champ_msgs__rosidl_generator_pyExport.cmake
+[6.894s] -- Installing: /home/tdp378/ros2_ws/install/champ_msgs/share/champ_msgs/cmake/export_champ_msgs__rosidl_generator_pyExport-noconfig.cmake
+[6.896s] Invoked command in '/home/tdp378/ros2_ws/build/champ_msgs' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/jazzy DEBUGINFOD_URLS=https://debuginfod.ubuntu.com /usr/bin/cmake --install /home/tdp378/ros2_ws/build/champ_msgs

@@ -1,0 +1,41 @@
+/**:
+  ros__parameters:
+    # -----------------------------
+    # Shared motion / teleop limits
+    # -----------------------------
+    max_vx: 0.10   # forward/backward speed limit (m/s)
+    max_vy: 0.10   # lateral/strafe speed limit (m/s)
+    max_wz: 0.20   # yaw rotation limit (rad/s)
+
+    # -----------------------------
+    # Keyboard node settings
+    # -----------------------------
+    base_linear_x: 0.08   # forward/backward command from keyboard
+    base_linear_y: 0.08   # strafe command from keyboard
+    base_angular_z: 0.15  # turning command from keyboard
+
+    speed_scale: 1.0        # starting multiplier
+    speed_scale_step: 0.1   # amount + / - changes speed
+    speed_scale_min: 0.2    # minimum allowed scaling
+    speed_scale_max: 2.0    # maximum allowed scaling
+
+    walk_mode_name: "walk"
+    stand_mode_name: "stand"
+    sit_mode_name: "sit"
+    lay_mode_name: "lay"
+
+    # -----------------------------
+    # Velocity smoother settings
+    # -----------------------------
+    input_topic: "/cmd_vel"
+    output_topic: "/cmd_vel/smooth"
+    rate: 20.0
+    command_timeout: 0.5
+
+    accel_vx: 0.25
+    accel_vy: 0.25
+    accel_wz: 0.40
+
+    decel_vx: 0.35
+    decel_vy: 0.35
+    decel_wz: 0.60

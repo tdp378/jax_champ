@@ -1,0 +1,354 @@
+<?xml version="1.0"?>
+
+<robot name="jax" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:arg name="DEBUG" default="false"/>
+  <xacro:arg name="robot_controllers" default="$(find jax_locomotion)/config/ros_control/ros_control.yaml"/>
+
+  <xacro:include filename="$(find jax_description)/urdf/const.xacro"/>
+  <xacro:include filename="$(find jax_description)/urdf/materials.xacro"/>
+  <xacro:include filename="$(find jax_description)/urdf/leg.xacro"/>
+  <xacro:include filename="$(find jax_description)/urdf/jax_gazebo.xacro"/>
+   
+  <xacro:jax_gazebo robot_controllers="$(arg robot_controllers)"/>
+
+  <xacro:if value="$(arg DEBUG)">
+    <link name="world"/>
+    <joint name="base_static_joint" type="fixed">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <parent link="world"/>
+      <child link="base_link"/>
+    </joint>
+  </xacro:if>
+
+ 
+  <link name="base_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.001 0.001 0.001"/>
+      </geometry>
+        <material name="white"/>
+    </visual>
+  </link>
+
+  <joint name="floating_base" type="fixed">
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <parent link="base_link"/>
+    <child link="trunk"/>
+  </joint>
+
+ 
+  <link name="trunk">
+    <visual>
+      <origin xyz="0 0 -0.02" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="file://$(find jax_description)/meshes/base_link.stl"
+              scale="0.001 0.001 0.001"/>
+      </geometry>
+        <material name="white"/>
+    </visual>
+
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="${trunk_length} ${trunk_width} ${trunk_height}"/>
+      </geometry>
+    </collision>
+
+    <inertial>
+      <origin xyz="${trunk_com_x} ${trunk_com_y} ${trunk_com_z}" rpy="0 0 0"/>
+      <mass value="${trunk_mass}"/>
+      <inertia
+        ixx="${trunk_ixx}" ixy="${trunk_ixy}" ixz="${trunk_ixz}"
+        iyy="${trunk_iyy}" iyz="${trunk_iyz}" izz="${trunk_izz}"/>
+    </inertial>
+  </link>
+
+  <joint name="imu_joint" type="fixed">
+    <parent link="trunk"/>
+    <child link="imu_link"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+
+  <link name="imu_link">
+    <inertial>
+      <mass value="0.001"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <inertia ixx="0.0001" ixy="0" ixz="0" iyy="0.0001" iyz="0" izz="0.0001"/>
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.001 0.001 0.001"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.001 0.001 0.001"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="camera_joint" type="fixed">
+    <parent link="trunk"/>
+    <child link="camera_link"/>
+    <origin xyz="0.20 0 0.04" rpy="0 0 0"/>
+  </joint>
+
+  <link name="camera_link">
+    <inertial>
+      <mass value="0.001"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <inertia ixx="0.0001" ixy="0" ixz="0" iyy="0.0001" iyz="0" izz="0.0001"/>
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <sphere radius="0.001"/>
+      </geometry>
+      <material name="">
+        <color rgba="0.5 0 0 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <sphere radius="0.001"/>
+      </geometry>
+    </collision>
+  </link>
+
+
+  <xacro:leg
+    name="rf"
+    hip_x="0.081158" hip_y="-0.062315" hip_z="0.007883"
+    hip_axis_x="1.0"
+    upper_x="0.023000" upper_y="-0.035846" upper_z="0.014509"
+    lower_x="-0.076540" lower_y="-0.019724" lower_z="-0.105075"
+    foot_x="0.094000" foot_y="0.006979" foot_z="-0.093222"
+    hip_mesh="rf_hip.stl"
+    upper_mesh="rf_upper_leg.stl"
+    lower_mesh="rf_lower_leg.stl"
+    foot_mesh="rf_foot.stl"
+    hip_vis_x="-0.081158" hip_vis_y="0.062315" hip_vis_z="-0.007883"
+    upper_vis_x="-0.104158" upper_vis_y="0.098161" upper_vis_z="-0.022392"
+    lower_vis_x="-0.027618" lower_vis_y="0.117885" lower_vis_z="0.082683"
+    foot_vis_x="-0.121618" foot_vis_y="0.110906" foot_vis_z="0.175905"
+    hip_col_x="-0.081158" hip_col_y="0.062315" hip_col_z="-0.007883"
+    upper_colmesh_x="-0.104158" upper_colmesh_y="0.098161" upper_colmesh_z="-0.022392"
+    lower_colmesh_x="-0.027618" lower_colmesh_y="0.117885" lower_colmesh_z="0.082683"
+    foot_col_x="-0.121618" foot_col_y="0.110906" foot_col_z="0.175905"
+
+    hip_mass="${fr_hip_mass}"
+    hip_com_x="${fr_hip_com_x}" hip_com_y="${fr_hip_com_y}" hip_com_z="${fr_hip_com_z}"
+    hip_ixx="${fr_hip_ixx}" hip_ixy="${fr_hip_ixy}" hip_ixz="${fr_hip_ixz}"
+    hip_iyy="${fr_hip_iyy}" hip_iyz="${fr_hip_iyz}" hip_izz="${fr_hip_izz}"
+
+    upper_mass="${fr_upper_mass}"
+    upper_com_x="${fr_upper_com_x}" upper_com_y="${fr_upper_com_y}" upper_com_z="${fr_upper_com_z}"
+    upper_ixx="${fr_upper_ixx}" upper_ixy="${fr_upper_ixy}" upper_ixz="${fr_upper_ixz}"
+    upper_iyy="${fr_upper_iyy}" upper_iyz="${fr_upper_iyz}" upper_izz="${fr_upper_izz}"
+
+    lower_mass="${fr_lower_mass}"
+    lower_com_x="${fr_lower_com_x}" lower_com_y="${fr_lower_com_y}" lower_com_z="${fr_lower_com_z}"
+    lower_ixx="${fr_lower_ixx}" lower_ixy="${fr_lower_ixy}" lower_ixz="${fr_lower_ixz}"
+    lower_iyy="${fr_lower_iyy}" lower_iyz="${fr_lower_iyz}" lower_izz="${fr_lower_izz}"
+
+    foot_mass="${fr_foot_mass}"
+    foot_com_x="${fr_foot_com_x}" foot_com_y="${fr_foot_com_y}" foot_com_z="${fr_foot_com_z}"
+    foot_ixx="${fr_foot_ixx}" foot_ixy="${fr_foot_ixy}" foot_ixz="${fr_foot_ixz}"
+    foot_iyy="${fr_foot_iyy}" foot_iyz="${fr_foot_iyz}" foot_izz="${fr_foot_izz}"/>
+
+  <xacro:leg
+    name="lf"
+    hip_x="0.081158" hip_y="0.059685" hip_z="0.007855"
+    hip_axis_x="1.0"
+    upper_x="0.022900" upper_y="0.035853" upper_z="0.014293"
+    lower_x="-0.076540" lower_y="0.019676" lower_z="-0.105084"
+    foot_x="0.094000" foot_y="-0.007021" foot_z="-0.093219"
+    hip_mesh="lf_hip.stl"
+    upper_mesh="lf_upper_leg.stl"
+    lower_mesh="lf_lower_leg.stl"
+    foot_mesh="lf_foot.stl"
+    hip_vis_x="-0.081158" hip_vis_y="-0.059685" hip_vis_z="-0.007855"
+    upper_vis_x="-0.104058" upper_vis_y="-0.095538" upper_vis_z="-0.022148"
+    lower_vis_x="-0.027518" lower_vis_y="-0.115214" lower_vis_z="0.082936"
+    foot_vis_x="-0.121518" foot_vis_y="-0.108193" foot_vis_z="0.176155"
+    hip_col_x="-0.081158" hip_col_y="-0.059685" hip_col_z="-0.007855"
+    upper_colmesh_x="-0.104058" upper_colmesh_y="-0.095538" upper_colmesh_z="-0.022148"
+    lower_colmesh_x="-0.027518" lower_colmesh_y="-0.115214" lower_colmesh_z="0.082936"
+    foot_col_x="-0.121518" foot_col_y="-0.108193" foot_col_z="0.176155"
+
+    hip_mass="${fl_hip_mass}"
+    hip_com_x="${fl_hip_com_x}" hip_com_y="${fl_hip_com_y}" hip_com_z="${fl_hip_com_z}"
+    hip_ixx="${fl_hip_ixx}" hip_ixy="${fl_hip_ixy}" hip_ixz="${fl_hip_ixz}"
+    hip_iyy="${fl_hip_iyy}" hip_iyz="${fl_hip_iyz}" hip_izz="${fl_hip_izz}"
+
+    upper_mass="${fl_upper_mass}"
+    upper_com_x="${fl_upper_com_x}" upper_com_y="${fl_upper_com_y}" upper_com_z="${fl_upper_com_z}"
+    upper_ixx="${fl_upper_ixx}" upper_ixy="${fl_upper_ixy}" upper_ixz="${fl_upper_ixz}"
+    upper_iyy="${fl_upper_iyy}" upper_iyz="${fl_upper_iyz}" upper_izz="${fl_upper_izz}"
+
+    lower_mass="${fl_lower_mass}"
+    lower_com_x="${fl_lower_com_x}" lower_com_y="${fl_lower_com_y}" lower_com_z="${fl_lower_com_z}"
+    lower_ixx="${fl_lower_ixx}" lower_ixy="${fl_lower_ixy}" lower_ixz="${fl_lower_ixz}"
+    lower_iyy="${fl_lower_iyy}" lower_iyz="${fl_lower_iyz}" lower_izz="${fl_lower_izz}"
+
+    foot_mass="${fl_foot_mass}"
+    foot_com_x="${fl_foot_com_x}" foot_com_y="${fl_foot_com_y}" foot_com_z="${fl_foot_com_z}"
+    foot_ixx="${fl_foot_ixx}" foot_ixy="${fl_foot_ixy}" foot_ixz="${fl_foot_ixz}"
+    foot_iyy="${fl_foot_iyy}" foot_iyz="${fl_foot_iyz}" foot_izz="${fl_foot_izz}"/>
+
+  <xacro:leg
+    name="rh"
+    hip_x="-0.076142" hip_y="-0.062315" hip_z="0.007880"
+    hip_axis_x="1.0"
+    upper_x="-0.043000" upper_y="-0.035847" upper_z="0.014507"
+    lower_x="-0.076540" lower_y="-0.019724" lower_z="-0.105075"
+    foot_x="0.094000" foot_y="0.006979" foot_z="-0.093222"
+    hip_mesh="rh_hip.stl"
+    upper_mesh="rh_upper_leg.stl"
+    lower_mesh="rh_lower_leg.stl"
+    foot_mesh="rh_foot.stl"
+    hip_vis_x="0.076142" hip_vis_y="0.062315" hip_vis_z="-0.007880"
+    upper_vis_x="0.119142" upper_vis_y="0.098162" upper_vis_z="-0.022387"
+    lower_vis_x="0.195682" lower_vis_y="0.117886" lower_vis_z="0.082688"
+    foot_vis_x="0.101682" foot_vis_y="0.110907" foot_vis_z="0.175910"
+    hip_col_x="0.076142" hip_col_y="0.062315" hip_col_z="-0.007880"
+    upper_colmesh_x="0.119142" upper_colmesh_y="0.098162" upper_colmesh_z="-0.022387"
+    lower_colmesh_x="0.195682" lower_colmesh_y="0.117886" lower_colmesh_z="0.082688"
+    foot_col_x="0.101682" foot_col_y="0.110907" foot_col_z="0.175910"
+
+    hip_mass="${rr_hip_mass}"
+    hip_com_x="${rr_hip_com_x}" hip_com_y="${rr_hip_com_y}" hip_com_z="${rr_hip_com_z}"
+    hip_ixx="${rr_hip_ixx}" hip_ixy="${rr_hip_ixy}" hip_ixz="${rr_hip_ixz}"
+    hip_iyy="${rr_hip_iyy}" hip_iyz="${rr_hip_iyz}" hip_izz="${rr_hip_izz}"
+
+    upper_mass="${rr_upper_mass}"
+    upper_com_x="${rr_upper_com_x}" upper_com_y="${rr_upper_com_y}" upper_com_z="${rr_upper_com_z}"
+    upper_ixx="${rr_upper_ixx}" upper_ixy="${rr_upper_ixy}" upper_ixz="${rr_upper_ixz}"
+    upper_iyy="${rr_upper_iyy}" upper_iyz="${rr_upper_iyz}" upper_izz="${rr_upper_izz}"
+
+    lower_mass="${rr_lower_mass}"
+    lower_com_x="${rr_lower_com_x}" lower_com_y="${rr_lower_com_y}" lower_com_z="${rr_lower_com_z}"
+    lower_ixx="${rr_lower_ixx}" lower_ixy="${rr_lower_ixy}" lower_ixz="${rr_lower_ixz}"
+    lower_iyy="${rr_lower_iyy}" lower_iyz="${rr_lower_iyz}" lower_izz="${rr_lower_izz}"
+
+    foot_mass="${rr_foot_mass}"
+    foot_com_x="${rr_foot_com_x}" foot_com_y="${rr_foot_com_y}" foot_com_z="${rr_foot_com_z}"
+    foot_ixx="${rr_foot_ixx}" foot_ixy="${rr_foot_ixy}" foot_ixz="${rr_foot_ixz}"
+    foot_iyy="${rr_foot_iyy}" foot_iyz="${rr_foot_iyz}" foot_izz="${rr_foot_izz}"/>
+
+  <xacro:leg
+    name="lh"
+    hip_x="-0.076142" hip_y="0.059685" hip_z="0.007852"
+    hip_axis_x="1.0"
+    upper_x="-0.043100" upper_y="0.035853" upper_z="0.014291"
+    lower_x="-0.076540" lower_y="0.019676" lower_z="-0.105083"
+    foot_x="0.094000" foot_y="-0.007021" foot_z="-0.093219"
+    hip_mesh="lh_hip.stl"
+    upper_mesh="lh_upper_leg.stl"
+    lower_mesh="lh_lower_leg.stl"
+    foot_mesh="lh_foot.stl"
+    hip_vis_x="0.076142" hip_vis_y="-0.059685" hip_vis_z="-0.007852"
+    upper_vis_x="0.119242" upper_vis_y="-0.095538" upper_vis_z="-0.022143"
+    lower_vis_x="0.195782" lower_vis_y="-0.115214" lower_vis_z="0.082940"
+    foot_vis_x="0.101782" foot_vis_y="-0.108193" foot_vis_z="0.176159"
+    hip_col_x="0.076142" hip_col_y="-0.059685" hip_col_z="-0.007852"
+    upper_colmesh_x="0.119242" upper_colmesh_y="-0.095538" upper_colmesh_z="-0.022143"
+    lower_colmesh_x="0.195782" lower_colmesh_y="-0.115214" lower_colmesh_z="0.082940"
+    foot_col_x="0.101782" foot_col_y="-0.108193" foot_col_z="0.176159"
+
+    hip_mass="${rl_hip_mass}"
+    hip_com_x="${rl_hip_com_x}" hip_com_y="${rl_hip_com_y}" hip_com_z="${rl_hip_com_z}"
+    hip_ixx="${rl_hip_ixx}" hip_ixy="${rl_hip_ixy}" hip_ixz="${rl_hip_ixz}"
+    hip_iyy="${rl_hip_iyy}" hip_iyz="${rl_hip_iyz}" hip_izz="${rl_hip_izz}"
+
+    upper_mass="${rl_upper_mass}"
+    upper_com_x="${rl_upper_com_x}" upper_com_y="${rl_upper_com_y}" upper_com_z="${rl_upper_com_z}"
+    upper_ixx="${rl_upper_ixx}" upper_ixy="${rl_upper_ixy}" upper_ixz="${rl_upper_ixz}"
+    upper_iyy="${rl_upper_iyy}" upper_iyz="${rl_upper_iyz}" upper_izz="${rl_upper_izz}"
+
+    lower_mass="${rl_lower_mass}"
+    lower_com_x="${rl_lower_com_x}" lower_com_y="${rl_lower_com_y}" lower_com_z="${rl_lower_com_z}"
+    lower_ixx="${rl_lower_ixx}" lower_ixy="${rl_lower_ixy}" lower_ixz="${rl_lower_ixz}"
+    lower_iyy="${rl_lower_iyy}" lower_iyz="${rl_lower_iyz}" lower_izz="${rl_lower_izz}"
+
+    foot_mass="${rl_foot_mass}"
+    foot_com_x="${rl_foot_com_x}" foot_com_y="${rl_foot_com_y}" foot_com_z="${rl_foot_com_z}"
+    foot_ixx="${rl_foot_ixx}" foot_ixy="${rl_foot_ixy}" foot_ixz="${rl_foot_ixz}"
+    foot_iyy="${rl_foot_iyy}" foot_iyz="${rl_foot_iyz}" foot_izz="${rl_foot_izz}"/>
+
+      <ros2_control name="GazeboSimSystem" type="system">
+    <hardware>
+      <plugin>gz_ros2_control/GazeboSimSystem</plugin>
+    </hardware>
+
+    <joint name="lf_hip_joint">
+      <command_interface name="effort"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="lf_upper_leg_joint">
+      <command_interface name="effort"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="lf_lower_leg_joint">
+      <command_interface name="effort"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+
+    <joint name="rf_hip_joint">
+      <command_interface name="effort"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="rf_upper_leg_joint">
+      <command_interface name="effort"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="rf_lower_leg_joint">
+      <command_interface name="effort"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+
+    <joint name="lh_hip_joint">
+      <command_interface name="effort"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="lh_upper_leg_joint">
+      <command_interface name="effort"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="lh_lower_leg_joint">
+      <command_interface name="effort"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+
+    <joint name="rh_hip_joint">
+      <command_interface name="effort"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="rh_upper_leg_joint">
+      <command_interface name="effort"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="rh_lower_leg_joint">
+      <command_interface name="effort"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+  </ros2_control>
+
+</robot>

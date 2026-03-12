@@ -1,0 +1,71 @@
+[0.012s] Invoking command in '/home/tdp378/ros2_ws/build/champ': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/jazzy DEBUGINFOD_URLS=https://debuginfod.ubuntu.com /usr/bin/cmake /home/tdp378/ros2_ws/src/champ -DAMENT_CMAKE_SYMLINK_INSTALL=1 -DCMAKE_INSTALL_PREFIX=/home/tdp378/ros2_ws/install/champ
+[0.049s] -- The C compiler identification is GNU 13.3.0
+[0.086s] -- The CXX compiler identification is GNU 13.3.0
+[0.096s] -- Detecting C compiler ABI info
+[0.154s] -- Detecting C compiler ABI info - done
+[0.160s] -- Check for working C compiler: /usr/bin/cc - skipped
+[0.160s] -- Detecting C compile features
+[0.161s] -- Detecting C compile features - done
+[0.166s] -- Detecting CXX compiler ABI info
+[0.232s] -- Detecting CXX compiler ABI info - done
+[0.238s] -- Check for working CXX compiler: /usr/bin/c++ - skipped
+[0.239s] -- Detecting CXX compile features
+[0.239s] -- Detecting CXX compile features - done
+[0.241s] -- Found ament_cmake: 2.5.5 (/opt/ros/jazzy/share/ament_cmake/cmake)
+[0.345s] -- Found Python3: /usr/bin/python3 (found version "3.12.3") found components: Interpreter 
+[0.397s] -- Override CMake install command with custom implementation using symlinks instead of copying resources
+[0.426s] -- Found rclcpp: 28.1.16 (/opt/ros/jazzy/share/rclcpp/cmake)
+[0.459s] -- Found rosidl_generator_c: 4.6.7 (/opt/ros/jazzy/share/rosidl_generator_c/cmake)
+[0.471s] -- Found rosidl_generator_cpp: 4.6.7 (/opt/ros/jazzy/share/rosidl_generator_cpp/cmake)
+[0.484s] -- Using all available rosidl_typesupport_c: rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c
+[0.498s] -- Using all available rosidl_typesupport_cpp: rosidl_typesupport_fastrtps_cpp;rosidl_typesupport_introspection_cpp
+[0.559s] -- Found rmw_implementation_cmake: 7.3.3 (/opt/ros/jazzy/share/rmw_implementation_cmake/cmake)
+[0.562s] -- Found rmw_fastrtps_cpp: 8.4.3 (/opt/ros/jazzy/share/rmw_fastrtps_cpp/cmake)
+[0.622s] -- Found OpenSSL: /usr/lib/x86_64-linux-gnu/libcrypto.so (found version "3.0.13")  
+[0.638s] -- Found FastRTPS: /opt/ros/jazzy/include (Required is at least version "2.13") 
+[0.656s] -- Using RMW implementation 'rmw_fastrtps_cpp' as default
+[0.717s] -- Found ament_lint_auto: 0.17.4 (/opt/ros/jazzy/share/ament_lint_auto/cmake)
+[0.784s] -- Configuring done (0.8s)
+[0.788s] -- Generating done (0.0s)
+[0.790s] -- Build files have been written to: /home/tdp378/ros2_ws/build/champ
+[0.795s] Invoked command in '/home/tdp378/ros2_ws/build/champ' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/jazzy DEBUGINFOD_URLS=https://debuginfod.ubuntu.com /usr/bin/cmake /home/tdp378/ros2_ws/src/champ -DAMENT_CMAKE_SYMLINK_INSTALL=1 -DCMAKE_INSTALL_PREFIX=/home/tdp378/ros2_ws/install/champ
+[0.796s] Invoking command in '/home/tdp378/ros2_ws/build/champ': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/jazzy DEBUGINFOD_URLS=https://debuginfod.ubuntu.com /usr/bin/cmake --build /home/tdp378/ros2_ws/build/champ -- -j16 -l16
+[0.826s] Invoked command in '/home/tdp378/ros2_ws/build/champ' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/jazzy DEBUGINFOD_URLS=https://debuginfod.ubuntu.com /usr/bin/cmake --build /home/tdp378/ros2_ws/build/champ -- -j16 -l16
+[0.827s] Invoking command in '/home/tdp378/ros2_ws/build/champ': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/jazzy DEBUGINFOD_URLS=https://debuginfod.ubuntu.com /usr/bin/cmake --install /home/tdp378/ros2_ws/build/champ
+[0.832s] -- Install configuration: ""
+[0.832s] -- Execute custom install script
+[0.833s] -- Symlinking: /home/tdp378/ros2_ws/install/champ/include/champ/LICENSE
+[0.839s] -- Symlinking: /home/tdp378/ros2_ws/install/champ/include/champ/README.md
+[0.846s] -- Symlinking: /home/tdp378/ros2_ws/install/champ/include/champ/bla/basic_linear_algebra.h
+[0.853s] -- Symlinking: /home/tdp378/ros2_ws/install/champ/include/champ/bla/memory_delegate.h
+[0.859s] -- Symlinking: /home/tdp378/ros2_ws/install/champ/include/champ/body_controller/body_controller.h
+[0.865s] -- Symlinking: /home/tdp378/ros2_ws/install/champ/include/champ/geometry/geometry.h
+[0.872s] -- Symlinking: /home/tdp378/ros2_ws/install/champ/include/champ/kinematics/kinematics.h
+[0.878s] -- Symlinking: /home/tdp378/ros2_ws/install/champ/include/champ/leg_controller/leg_controller.h
+[0.884s] -- Symlinking: /home/tdp378/ros2_ws/install/champ/include/champ/leg_controller/phase_generator.h
+[0.891s] -- Symlinking: /home/tdp378/ros2_ws/install/champ/include/champ/leg_controller/trajectory_planner.h
+[0.897s] -- Symlinking: /home/tdp378/ros2_ws/install/champ/include/champ/macros/macros.h
+[0.903s] -- Symlinking: /home/tdp378/ros2_ws/install/champ/include/champ/odometry/odometry.h
+[0.910s] -- Symlinking: /home/tdp378/ros2_ws/install/champ/include/champ/quadruped_base/quadruped_base.h
+[0.917s] -- Symlinking: /home/tdp378/ros2_ws/install/champ/include/champ/quadruped_base/quadruped_components.h
+[0.923s] -- Symlinking: /home/tdp378/ros2_ws/install/champ/include/champ/quadruped_base/quadruped_joint.h
+[0.929s] -- Symlinking: /home/tdp378/ros2_ws/install/champ/include/champ/quadruped_base/quadruped_leg.h
+[0.935s] -- Symlinking: /home/tdp378/ros2_ws/install/champ/include/champ/utils/urdf_loader.h
+[0.941s] -- Symlinking: /home/tdp378/ros2_ws/install/champ/include/champ/utils/xmlrpc_helpers.h
+[0.947s] -- Symlinking: /home/tdp378/ros2_ws/install/champ/share/ament_index/resource_index/package_run_dependencies/champ
+[0.953s] -- Symlinking: /home/tdp378/ros2_ws/install/champ/share/ament_index/resource_index/parent_prefix_path/champ
+[0.959s] -- Symlinking: /home/tdp378/ros2_ws/install/champ/share/champ/environment/ament_prefix_path.sh
+[0.965s] -- Symlinking: /home/tdp378/ros2_ws/install/champ/share/champ/environment/ament_prefix_path.dsv
+[0.971s] -- Symlinking: /home/tdp378/ros2_ws/install/champ/share/champ/environment/path.sh
+[0.977s] -- Symlinking: /home/tdp378/ros2_ws/install/champ/share/champ/environment/path.dsv
+[0.983s] -- Symlinking: /home/tdp378/ros2_ws/install/champ/share/champ/local_setup.bash
+[0.990s] -- Symlinking: /home/tdp378/ros2_ws/install/champ/share/champ/local_setup.sh
+[0.997s] -- Symlinking: /home/tdp378/ros2_ws/install/champ/share/champ/local_setup.zsh
+[1.003s] -- Symlinking: /home/tdp378/ros2_ws/install/champ/share/champ/local_setup.dsv
+[1.009s] -- Symlinking: /home/tdp378/ros2_ws/install/champ/share/champ/package.dsv
+[1.017s] -- Symlinking: /home/tdp378/ros2_ws/install/champ/share/ament_index/resource_index/packages/champ
+[1.023s] -- Symlinking: /home/tdp378/ros2_ws/install/champ/share/champ/cmake/ament_cmake_export_include_directories-extras.cmake
+[1.029s] -- Symlinking: /home/tdp378/ros2_ws/install/champ/share/champ/cmake/champConfig.cmake
+[1.034s] -- Symlinking: /home/tdp378/ros2_ws/install/champ/share/champ/cmake/champConfig-version.cmake
+[1.040s] -- Symlinking: /home/tdp378/ros2_ws/install/champ/share/champ/package.xml
+[1.048s] Invoked command in '/home/tdp378/ros2_ws/build/champ' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/jazzy DEBUGINFOD_URLS=https://debuginfod.ubuntu.com /usr/bin/cmake --install /home/tdp378/ros2_ws/build/champ
