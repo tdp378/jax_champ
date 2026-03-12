@@ -1,1 +1,0 @@
-/home/tdp378/ros2_ws/src/jax_bringup/launch/rviz_launch.py
