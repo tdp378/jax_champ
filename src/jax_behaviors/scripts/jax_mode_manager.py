@@ -29,7 +29,7 @@ class JaxModeManager(Node):
 
         self.cmd_vel_in_sub = self.create_subscription(
             Twist,
-            '/cmd_vel/smooth',
+            '/cmd_vel/smooth_stable',
             self.cmd_vel_callback,
             10,
         )

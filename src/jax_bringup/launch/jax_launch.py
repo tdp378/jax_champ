@@ -137,6 +137,22 @@ def generate_launch_description():
         parameters=[{"use_sim_time": True}],
     )
 
+    imu_stabilizer = Node(
+        package="jax_locomotion",
+        executable="jax_imu_cmdvel_stabilizer.py",
+        output="screen",
+        parameters=[
+            {"kp_pitch": 0.7},
+            {"kp_roll": 0.6},
+            {"deadband": 0.02},
+            {"max_correction": 0.20},
+            {"alpha": 0.2},
+            {"enabled": True},
+            {"only_when_moving": True},
+            {"motion_threshold": 0.02},
+        ],
+    )
+    
     jax_mode_manager = Node(
         package="jax_behaviors",
         executable="jax_mode_manager.py",
@@ -206,6 +222,9 @@ def generate_launch_description():
         ],
     )
 
+
+
+
     return LaunchDescription(
         [
             gazebo,
@@ -216,6 +235,7 @@ def generate_launch_description():
             jax_mode_manager,
             jax_velocity_smoother,
             quadruped_controller,
+            imu_stabilizer,
             joint_state_spawner,
             trajectory_spawner,
         ]
