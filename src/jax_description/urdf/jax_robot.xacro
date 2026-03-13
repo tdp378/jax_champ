@@ -123,7 +123,7 @@
 
   <xacro:leg
     name="rf"
-    hip_x="0.081158" hip_y="-0.062315" hip_z="0.007883"
+    hip_x="0.081158" hip_y="-0.062315" hip_z="-0.01"
     hip_axis_x="1.0"
     upper_x="0.023000" upper_y="-0.035846" upper_z="0.014509"
     lower_x="-0.076540" lower_y="-0.019724" lower_z="-0.105075"
@@ -163,7 +163,7 @@
 
   <xacro:leg
     name="lf"
-    hip_x="0.081158" hip_y="0.059685" hip_z="0.007855"
+    hip_x="0.081158" hip_y="0.062315" hip_z="-0.01"
     hip_axis_x="1.0"
     upper_x="0.022900" upper_y="0.035853" upper_z="0.014293"
     lower_x="-0.076540" lower_y="0.019676" lower_z="-0.105084"
@@ -203,7 +203,7 @@
 
   <xacro:leg
     name="rh"
-    hip_x="-0.076142" hip_y="-0.062315" hip_z="0.007880"
+    hip_x="-0.076142" hip_y="-0.059685" hip_z="-0.01"
     hip_axis_x="1.0"
     upper_x="-0.043000" upper_y="-0.035847" upper_z="0.014507"
     lower_x="-0.076540" lower_y="-0.019724" lower_z="-0.105075"
@@ -243,7 +243,7 @@
 
   <xacro:leg
     name="lh"
-    hip_x="-0.076142" hip_y="0.059685" hip_z="0.007852"
+    hip_x="-0.076142" hip_y="0.059685" hip_z="-0.01"
     hip_axis_x="1.0"
     upper_x="-0.043100" upper_y="0.035853" upper_z="0.014291"
     lower_x="-0.076540" lower_y="0.019676" lower_z="-0.105083"
