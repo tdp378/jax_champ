@@ -16,12 +16,7 @@
     lower_vis_x lower_vis_y lower_vis_z
     foot_vis_x foot_vis_y foot_vis_z
 
-    hip_col_x hip_col_y hip_col_z
-    upper_colmesh_x upper_colmesh_y upper_colmesh_z
-    lower_colmesh_x lower_colmesh_y lower_colmesh_z
-    foot_col_x foot_col_y foot_col_z
-
-    hip_mass hip_com_x hip_com_y hip_com_z hip_ixx hip_ixy hip_ixz hip_iyy hip_iyz hip_izz
+       hip_mass hip_com_x hip_com_y hip_com_z hip_ixx hip_ixy hip_ixz hip_iyy hip_iyz hip_izz
     upper_mass upper_com_x upper_com_y upper_com_z upper_ixx upper_ixy upper_ixz upper_iyy upper_iyz upper_izz
     lower_mass lower_com_x lower_com_y lower_com_z lower_ixx lower_ixy lower_ixz lower_iyy lower_iyz lower_izz
     foot_mass foot_com_x foot_com_y foot_com_z foot_ixx foot_ixy foot_ixz foot_iyy foot_iyz foot_izz
