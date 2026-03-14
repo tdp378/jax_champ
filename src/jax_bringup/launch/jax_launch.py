@@ -84,6 +84,23 @@ def generate_launch_description():
         )
     }
 
+    jax_display =Node(
+        package='jax_bringup',
+        executable='jax_display_node.py',
+        name='jax_display_node',
+        output='screen',
+        parameters=[{
+            'mode_topic': '/jax_mode',
+            'imu_topic': '/imu/data',
+            'sim': True,
+            'robot_name': 'JAX',
+            'boot_duration': 2.5,
+            'mode_flash_duration': 1.2,
+        }]
+    )
+
+
+
     gazebo = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             os.path.join(
@@ -227,6 +244,7 @@ def generate_launch_description():
 
     return LaunchDescription(
         [
+            jax_display,
             gazebo,
             robot_state_publisher,
             spawn_robot,
