@@ -165,8 +165,8 @@ class JaxDisplayNode(Node):
                 self.get_logger().info("Using desktop preview backend")
                 self.backend = DesktopDisplayBackend()
         except Exception as e:
-            self.get_logger().warn(f"LCD init failed, falling back to desktop preview: {e}")
-            self.backend = DesktopDisplayBackend()
+            self.get_logger().error(f"LCD init failed: {e}")
+            raise
 
         # ---------------- Timer ----------------
         period = 1.0 / max(refresh_hz, 1.0)
