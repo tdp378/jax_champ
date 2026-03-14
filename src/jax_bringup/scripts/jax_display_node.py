@@ -11,6 +11,11 @@ import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import Imu
 from std_msgs.msg import String
+import os
+import platform
+from PIL import Image
+from luma.core.interface.serial import spi
+from luma.lcd.device import st7789
 
 
 @dataclass
@@ -47,6 +52,33 @@ class DesktopDisplayBackend:
         cv2.destroyAllWindows()
 
 
+class WaveshareDisplayBackend:
+    def __init__(self, spi_port=0, spi_device=0, dc_pin=25, rst_pin=27):
+        serial = spi(
+            port=spi_port,
+            device=spi_device,
+            gpio_DC=dc_pin,
+            gpio_RST=rst_pin
+        )
+
+        # The UI renderer already outputs 320x172 landscape.
+        # Initialize the panel to match that orientation directly.
+        self.device = st7789(
+            serial,
+            width=320,
+            height=172,
+            rotate=0
+        )
+
+    def show(self, img_bgr: np.ndarray):
+        img_rgb = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2RGB)
+        pil_img = Image.fromarray(img_rgb)
+        self.device.display(pil_img)
+
+    def close(self):
+        pass
+
+
 class JaxDisplayNode(Node):
     def __init__(self):
         super().__init__('jax_display_node')
@@ -62,6 +94,11 @@ class JaxDisplayNode(Node):
         self.declare_parameter("robot_name", "JAX")
         self.declare_parameter("boot_duration", 2.5)
         self.declare_parameter("mode_flash_duration", 1.2)
+        self.declare_parameter("use_lcd", False)
+        self.declare_parameter("spi_port", 0)
+        self.declare_parameter("spi_device", 0)
+        self.declare_parameter("dc_pin", 25)
+        self.declare_parameter("rst_pin", 27)
 
         mode_topic = self.get_parameter("mode_topic").get_parameter_value().string_value
         imu_topic = self.get_parameter("imu_topic").get_parameter_value().string_value
@@ -73,6 +110,11 @@ class JaxDisplayNode(Node):
         self.robot_name = self.get_parameter("robot_name").get_parameter_value().string_value
         self.boot_duration = self.get_parameter("boot_duration").get_parameter_value().double_value
         self.mode_flash_duration = self.get_parameter("mode_flash_duration").get_parameter_value().double_value
+        use_lcd_param = self.get_parameter("use_lcd").get_parameter_value().bool_value
+        spi_port = self.get_parameter("spi_port").get_parameter_value().integer_value
+        spi_device = self.get_parameter("spi_device").get_parameter_value().integer_value
+        dc_pin = self.get_parameter("dc_pin").get_parameter_value().integer_value
+        rst_pin = self.get_parameter("rst_pin").get_parameter_value().integer_value
 
         # ---------------- State ----------------
         self.state = DisplayState()
@@ -105,7 +147,26 @@ class JaxDisplayNode(Node):
         )
 
         # ---------------- Backend ----------------
-        self.backend = DesktopDisplayBackend()
+        on_pi = (
+            os.path.exists("/dev/spidev0.0") and
+            platform.machine() in ["aarch64", "armv7l", "armv6l"]
+        )
+
+        try:
+            if use_lcd_param or on_pi:
+                self.get_logger().info("Using Waveshare LCD backend")
+                self.backend = WaveshareDisplayBackend(
+                    spi_port=spi_port,
+                    spi_device=spi_device,
+                    dc_pin=dc_pin,
+                    rst_pin=rst_pin
+                )
+            else:
+                self.get_logger().info("Using desktop preview backend")
+                self.backend = DesktopDisplayBackend()
+        except Exception as e:
+            self.get_logger().warn(f"LCD init failed, falling back to desktop preview: {e}")
+            self.backend = DesktopDisplayBackend()
 
         # ---------------- Timer ----------------
         period = 1.0 / max(refresh_hz, 1.0)
@@ -366,7 +427,6 @@ class JaxDisplayNode(Node):
 
         WHITE = (240, 240, 240)
         LIGHT = (185, 185, 185)
-        DARK = (20, 20, 20)
 
         bg_color = self.mode_flash_colors(mode)
 
