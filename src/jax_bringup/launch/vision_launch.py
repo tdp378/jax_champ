@@ -4,7 +4,7 @@ from launch.actions import IncludeLaunchDescription
 from launch.launch_description_sources import AnyLaunchDescriptionSource
 from ament_index_python.packages import get_package_share_directory
 import os
-
+os.system("stty -F /dev/ttyAMA0 115200 raw -echo")
 def generate_launch_description():
     # Path to the foxglove launch file
     foxglove_bridge_launch = IncludeLaunchDescription(
@@ -32,6 +32,13 @@ def generate_launch_description():
             package='web_video_server',
             executable='web_video_server',
             name='web_video_server'
+        ),
+
+        Node(
+            package='jax_bringup',
+            executable='jax_serial_bridge.py', # Ensure this matches your CMake install name
+            name='serial_bridge',
+            output='screen'
         ),
         # THE NEW FOXGLOVE BRIDGE
         foxglove_bridge_launch
