@@ -2,6 +2,12 @@ import os
 from launch import LaunchDescription
 from launch.actions import TimerAction
 from launch_ros.actions import Node
+from launch.actions import IncludeLaunchDescription
+from launch.launch_description_sources import AnyLaunchDescriptionSource
+from launch_ros.substitutions import FindPackageShare
+from launch.substitutions import PathJoinSubstitution
+
+
 
 def generate_launch_description():
     # 1. Hardware Bridge (Start immediately)
@@ -61,10 +67,29 @@ def generate_launch_description():
         ]
     )
 
+    rosbridge_launch = IncludeLaunchDescription(
+        AnyLaunchDescriptionSource(
+            PathJoinSubstitution([
+                FindPackageShare('rosbridge_server'),
+                'launch',
+                'rosbridge_websocket_launch.xml'
+            ])
+        ),
+        launch_arguments={'port': '9090'}.items()
+    )
+    app_controller_node = Node(
+        package='jax_teleop',
+        executable='jax_app_controller.py', # Must include .py for CMake installs
+        name='jax_app_controller',
+        output='screen'
+    )
+
     return LaunchDescription([
         serial_bridge,
         camera_node,
         video_server,
         behavior_node,
-        delayed_mode_manager
+        delayed_mode_manager,
+        app_controller_node,
+        rosbridge_launch
     ])

@@ -10,6 +10,7 @@ find_package(ament_cmake REQUIRED)
 install(PROGRAMS
   scripts/jax_keyboard_node.py
   scripts/jax_velocity_smoother.py
+  scripts/jax_app_controller.py
   DESTINATION lib/${PROJECT_NAME}
 )
 
