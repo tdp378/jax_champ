@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 import rclpy
 from rclpy.node import Node
 from geometry_msgs.msg import Twist
@@ -8,8 +7,9 @@ class JaxAppController(Node):
     def __init__(self):
         super().__init__('jax_app_controller')
 
-        # Initialize safely: do not move until a specific command is received
-        self.current_state = "limp_noodle"
+        # Initialize safely: Track the existing relaxed state from the bring-up node.
+        # Jax will not move upon power-up until a specific command is given.
+        self.current_state = "lay"
 
         # Listen to the joystick (velocity)
         self.cmd_vel_sub = self.create_subscription(
@@ -27,7 +27,7 @@ class JaxAppController(Node):
             10
         )
 
-        self.get_logger().info("Jax App Controller active. Status: Limp Noodle.")
+        self.get_logger().info("Jax App Controller active. Status: Laying down (motors relaxed). Waiting for command.")
 
     def mode_callback(self, msg):
         command = msg.data.lower()
@@ -43,8 +43,10 @@ class JaxAppController(Node):
             if self.current_state in ["sitting", "standing"]:
                 self.current_state = "walking"
                 self.get_logger().info("Transitioning to walking gait.")
+            else:
+                self.get_logger().warning("Cannot walk from current state. Stand up first.")
         elif command == "lay":
-            self.current_state = "limp_noodle"
+            self.current_state = "lay"
             self.execute_lay()
 
     def vel_callback(self, msg):
@@ -63,8 +65,8 @@ class JaxAppController(Node):
         front_left_hip_angle = self.calculate_hip_angle(x, y, z, is_left=True)
         front_right_hip_angle = self.calculate_hip_angle(x, y, z, is_left=False)
 
-        # Because the rear hips are physically mounted opposite to the front,
-        # we apply matching signs to the rear to achieve correct forward/backward movement.
+        # The rear hips are mounted opposite to the front, 
+        # so they require matching signs for correct movement.
         rear_left_hip_angle = front_left_hip_angle 
         rear_right_hip_angle = front_right_hip_angle 
 

@@ -14,7 +14,7 @@ class JaxModeManager(Node):
 
        
         self.declare_parameter('transition_duration', 1.8)
-        self.declare_parameter('startup_mode', 'stand')
+        self.declare_parameter('startup_mode', 'lay')
 
         self.mode = str(self.get_parameter('startup_mode').value).strip().lower()
         self.walk_enable_time = None

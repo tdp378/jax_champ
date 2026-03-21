@@ -4,6 +4,7 @@ from rclpy.node import Node
 import serial
 import os
 import time
+import subprocess  # Added for audio playback
 from sensor_msgs.msg import BatteryState
 from trajectory_msgs.msg import JointTrajectory
 
@@ -62,11 +63,20 @@ class JaxSerialBridge(Node):
                 self.target_pos[i] = incoming_data[joint_name]
 
     def loop_callback(self):
-        # 1. ARMING: If we see data but aren't armed, send WAKE again
+        # 1. ARMING: If we see data but aren't armed, send WAKE and PLAY SOUND
         if not self.armed:
-            self.ser.write(b"WAKE\n")
-            self.armed = True
-            self.get_logger().info("!!! ARMING COMMAND (WAKE) SENT !!!")
+            try:
+                # Send the serial command for the NeoPixels/Servos
+                self.ser.write(b"WAKE\n")
+                
+                # TRIGGER THE AUDIO CLIP (Non-blocking)
+                # Ensure the path points to your actual .wav file
+                subprocess.Popen(['aplay', '/home/tdp378/jax_champ/src/sounds/bootup_complete.wav']) 
+                
+                self.armed = True
+                self.get_logger().info("!!! JAX ARMED: NeoPixels Active & Playing Sound !!!")
+            except Exception as e:
+                self.get_logger().error(f"Failed to arm or play sound: {e}")
 
         # 2. INTERPOLATION: Move current toward target using step_size
         changed = False
