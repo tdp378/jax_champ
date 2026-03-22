@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import rclpy
+import time
 from rclpy.node import Node
 
 from std_msgs.msg import String
@@ -66,18 +67,49 @@ class JaxBehaviorNode(Node):
             self.publish_pose([
                 0.0,  0.0, 0.5,
                 0.0,  0.0, 0.5,
-                0.0,  0.25, -0.2,
-                0.0,  0.25, -0.2,
+                0.0,  0.25, 0.0,
+                0.0,  0.25, 0.0,
             ], move_time=1.2)
 
         elif mode == "lay":
             self.get_logger().info("Behavior: lay")
             self.publish_pose([
-                0.0,  0.9, 0.3,
-                0.0,  0.9, 0.3,
-                0.0,  0.9, 0.2,
-                0.0,  0.9, 0.2,
+                0.0,  0.8, 0.8,
+                0.0,  0.8, 0.8,
+                0.0,  0.8, 0.8,
+                0.0,  0.8, 0.8,
             ], move_time=1.5)
+
+
+        elif mode == "paw":
+            self.get_logger().info("Behavior: paw - Sitting")
+            # STAGE 1: Shift body to the Left and slightly Forward
+            self.publish_pose([
+                0.0,  0.0, 0.5,
+                0.0,  0.0, 0.5,
+                0.0,  0.25, 0.0,
+                0.0,  0.25, 0.0,
+            ], move_time=1.2)
+
+            # Small pause to let the servos settle the weight
+            time.sleep(0.8)
+
+            # STAGE 2: The actual Lift
+            self.get_logger().info("Behavior: paw - Shifting Weight")
+            self.publish_pose([
+                0.15,  0.1,  0.8,   # LF: Stay braced
+                0.0,  0.0, 0.5,   # RF: Lift high, Hip further out for clearance
+                0.15, 0.25, -0.2,  # LH: Stay tucked
+                -0.05, 0.25, 0.0   # RH: Stay tucked
+            ], move_time=0.6)
+
+            self.get_logger().info("Behavior: paw - Lifting Paw")
+            self.publish_pose([
+                0.15,  0.1,  0.6,   # LF: Stay braced
+                -0.2, -1.0, -1.4,   # RF: Lift high, Hip further out for clearance
+                0.15, 0.25, -0.2,  # LH: Stay tucked
+                -0.05, 0.25, 0.0   # RH: Stay tucked
+            ], move_time=0.2)
 
         elif mode == "walk":
             self.get_logger().info("Behavior: walk mode requested")

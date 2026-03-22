@@ -48,7 +48,7 @@ def generate_launch_description():
     # 5. Velocity Smoother (The "Safety Buffer")
     # This takes raw 'cmd_vel' and outputs 'cmd_vel/smoothed'
     velocity_smoother = Node(
-        package='jax_locomotion',
+        package='jax_teleop',
         executable='jax_velocity_smoother.py',
         name='jax_velocity_smoother',
         remappings=[
@@ -68,7 +68,7 @@ def generate_launch_description():
 
     # 7. Joint Remapper (Parallel Linkage Correction)
     joint_remapper = Node(
-        package='jax_description',
+        package='jax_bringup',
         executable='joint_remapper.py',
         name='joint_remapper',
         output='screen'

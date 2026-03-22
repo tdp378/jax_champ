@@ -2,6 +2,7 @@
 
 import rclpy
 from rclpy.node import Node
+import time
 
 from std_msgs.msg import String
 from geometry_msgs.msg import Twist
@@ -12,13 +13,17 @@ class JaxModeManager(Node):
     def __init__(self):
         super().__init__('jax_mode_manager')
 
-       
         self.declare_parameter('transition_duration', 1.8)
         self.declare_parameter('startup_mode', 'lay')
 
-        self.mode = str(self.get_parameter('startup_mode').value).strip().lower()
+        # Use a consistent naming convention
+        self.current_mode = str(self.get_parameter('startup_mode').value).strip().lower()
         self.walk_enable_time = None
         self.transition_duration = float(self.get_parameter('transition_duration').value)
+        
+        # Variables for the safe landing sequence
+        self.target_mode_after_landing = None
+        self.landing_end_time = None
 
         self.mode_sub = self.create_subscription(
             String,
@@ -68,11 +73,11 @@ class JaxModeManager(Node):
 
         self.timer = self.create_timer(0.05, self.update)
 
-        if self.mode in ['stand', 'sit', 'lay']:
-            self.publish_behavior_mode(self.mode)
+        # Initial startup
+        self.publish_behavior_mode(self.current_mode)
 
         self.get_logger().info(
-            f'jax_mode_manager ready, starting in {self.mode.upper()} mode'
+            f'jax_mode_manager ready, starting in {self.current_mode.upper()} mode'
         )
 
     def publish_zero_cmd(self):
@@ -86,43 +91,75 @@ class JaxModeManager(Node):
     def mode_callback(self, msg: String):
         new_mode = msg.data.strip().lower()
 
-        if new_mode not in ['walk', 'stand', 'sit', 'lay']:
+        if new_mode not in ['walk', 'stand', 'sit', 'lay', 'paw']:
             self.get_logger().warn(f'Ignoring unknown mode: {new_mode}')
             return
 
+        # If we are already landing, ignore new commands until foot is down
+        if self.current_mode == 'landing':
+            self.get_logger().warn('Currently landing, please wait...')
+            return
+
+        # --- THE FIX: DETECT EXITING PAW ---
+        if self.current_mode == 'paw' and new_mode != 'paw':
+            self.get_logger().info('DETECTED EXIT FROM PAW: Transitioning to SIT first...')
+            self.target_mode_after_landing = new_mode
+            self.landing_end_time = (self.get_clock().now().nanoseconds / 1e9) + 1.2
+            self.current_mode = 'landing'
+            
+            # Immediately tell behavior node to go to sit (touchdown)
+            self.publish_behavior_mode('sit')
+            return
+
+        # Normal mode execution
+        self._execute_mode_change(new_mode)
+
+    def _execute_mode_change(self, new_mode):
         if new_mode == 'walk':
-            self.mode = 'transition_to_walk'
-            self.walk_enable_time = self.get_clock().now().nanoseconds / 1e9 + self.transition_duration
+            self.current_mode = 'transition_to_walk'
+            self.walk_enable_time = (self.get_clock().now().nanoseconds / 1e9) + self.transition_duration
             self.publish_zero_cmd()
             self.publish_behavior_mode('stand')
             self.get_logger().info('Transitioning to WALK via STAND')
         else:
-            self.mode = new_mode
+            self.current_mode = new_mode
             self.walk_enable_time = None
             self.publish_zero_cmd()
             self.publish_behavior_mode(new_mode)
-            self.get_logger().info(f'Mode set to: {self.mode}')
+            self.get_logger().info(f'Mode set to: {self.current_mode}')
 
     def cmd_vel_callback(self, msg: Twist):
-        if self.mode == 'walk':
+        if self.current_mode == 'walk':
             self.cmd_vel_walk_pub.publish(msg)
 
     def walk_traj_callback(self, msg: JointTrajectory):
-        if self.mode == 'walk':
+        if self.current_mode == 'walk':
             self.controller_traj_pub.publish(msg)
 
     def behavior_traj_callback(self, msg: JointTrajectory):
-        if self.mode in ['stand', 'sit', 'lay', 'transition_to_walk']:
+        # Allow trajectory passthrough during landing state
+        if self.current_mode in ['stand', 'sit', 'lay', 'paw', 'transition_to_walk', 'landing']:
             self.controller_traj_pub.publish(msg)
 
     def update(self):
-        if self.mode != 'walk':
+        now_sec = self.get_clock().now().nanoseconds / 1e9
+        
+        if self.current_mode != 'walk':
             self.publish_zero_cmd()
 
-        if self.mode == 'transition_to_walk' and self.walk_enable_time is not None:
-            now_sec = self.get_clock().now().nanoseconds / 1e9
+        # Handle the Landing State completion
+        if self.current_mode == 'landing' and self.landing_end_time is not None:
+            if now_sec >= self.landing_end_time:
+                self.get_logger().info('Landing sequence complete.')
+                target = self.target_mode_after_landing
+                self.landing_end_time = None
+                self.target_mode_after_landing = None
+                self._execute_mode_change(target)
+
+        # Handle Walk Transition completion
+        if self.current_mode == 'transition_to_walk' and self.walk_enable_time is not None:
             if now_sec >= self.walk_enable_time:
-                self.mode = 'walk'
+                self.current_mode = 'walk'
                 self.walk_enable_time = None
                 self.get_logger().info('Walk mode enabled')
 
