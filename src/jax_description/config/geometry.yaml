@@ -1,0 +1,19 @@
+indices:
+  lf: [0, 1, 2]
+  rf: [3, 4, 5]
+  lh: [6, 7, 8]
+  rh: [9, 10, 11]
+
+legs:
+  lf:
+    flip: false
+    coupled: true
+  rf:
+    flip: false
+    coupled: true
+  lh:
+    flip: false   # Set to true if strafe is mirrored again
+    coupled: true
+  rh:
+    flip: false   # Set to true if strafe is mirrored again
+    coupled: true

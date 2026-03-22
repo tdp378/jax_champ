@@ -191,6 +191,17 @@ def generate_launch_description():
         ],
     )
 
+   
+
+    # Add the Remapper Node
+    joint_remapper_node = Node(
+        package='jax_bringup',
+        executable='joint_remapper.py',  # Ensure this matches the filename in your scripts folder
+        name='joint_remapper',
+        output='screen',
+        parameters=[{'use_sim_time': True}] # Set to False for the physical Pi
+    )
+
     quadruped_controller = Node(
         package="champ_base",
         executable="quadruped_controller_node",
@@ -201,7 +212,8 @@ def generate_launch_description():
             {"publish_joint_states": False},
             {"publish_joint_control": True},
             {"publish_foot_contacts": False},
-            {"joint_controller_topic": "/jax/walk_joint_trajectory"},
+            # THIS IS THE RAW TOPIC THE REMAPPER LISTENS TO
+            {"joint_controller_topic": "/jax/walk_joint_trajectory"}, 
             {"urdf": Command(["xacro ", robot_xacro])},
             joints_config,
             links_config,
@@ -212,6 +224,7 @@ def generate_launch_description():
             {"hardware_connected": False},
             {"close_loop_odom": False},
         ],
+        # Ensure only the cmd_vel is remapped here
         remappings=[("/cmd_vel/smooth", "/jax/cmd_vel_walk")],
     )
 
@@ -255,6 +268,7 @@ def generate_launch_description():
             quadruped_controller,
             imu_stabilizer,
             joint_state_spawner,
+            joint_remapper_node,
             trajectory_spawner,
         ]
     )

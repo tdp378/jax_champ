@@ -220,12 +220,10 @@ ParameterHandler::move_control_values(libcamera::ControlList &controls)
   // move the control values to the reference
   // this will clear the internal control values
   const std::lock_guard<std::mutex> lock(control_values_lock);
-  controls.merge(control_values
-#if LIBCAMERA_VER_GE(0, 2, 0)
-                 ,
-                 libcamera::ControlList::MergePolicy::OverwriteExisting
-#endif
-  );
+  
+  // BYPASS: Removing the MergePolicy argument to fix build error
+  controls.merge(control_values);
+  
   control_values.clear();
 }
 

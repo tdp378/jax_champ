@@ -56,7 +56,7 @@ class JaxModeManager(Node):
 
         self.controller_traj_pub = self.create_publisher(
             JointTrajectory,
-            '/joint_group_effort_controller/joint_trajectory',
+            '/jax/walk_joint_trajectory_raw',
             10,
         )
 
