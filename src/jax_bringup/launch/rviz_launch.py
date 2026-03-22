@@ -46,6 +46,7 @@ def generate_launch_description():
         name="joint_state_publisher_gui",
         output="screen",
         parameters=[{"use_sim_time": use_sim_time}],
+        remappings=[('/joint_states', '/joint_states_raw')],
         condition=IfCondition(gui),
     )
 
@@ -59,6 +60,13 @@ def generate_launch_description():
         condition=IfCondition(rviz),
     )
 
+    joint_remapper_node = Node(
+        package='jax_bringup',
+        executable='joint_remapper.py',
+        name='joint_remapper',
+        output='screen'
+    )
+
     return LaunchDescription([
         DeclareLaunchArgument("use_sim_time", default_value="false"),
         DeclareLaunchArgument("gui", default_value="true"),
@@ -67,4 +75,5 @@ def generate_launch_description():
         robot_state_publisher,
         joint_state_publisher_gui,
         rviz2,
+        joint_remapper_node,
     ])
