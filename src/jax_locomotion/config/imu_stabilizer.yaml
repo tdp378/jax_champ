@@ -1,0 +1,21 @@
+# IMU Leg Height Stabilizer Configuration
+
+# Default parameters for IMU leg height stabilizer.
+
+# Height stabilizer configuration
+height_stabilizer:
+  enabled: true
+  target_height: 0.5  # Target leg height in meters
+  height_tolerance: 0.05  # Allowed tolerance in meters
+
+# Filtering parameters
+filter:
+  type: "low-pass"
+  cutoff_frequency: 10.0  # Cutoff frequency in Hz
+
+# Control parameters
+control:
+  kp: 1.0  # Proportional gain
+  kd: 0.1  # Derivative gain
+  ki: 0.01  # Integral gain
+  update_rate: 100.0  # Update rate in Hz
