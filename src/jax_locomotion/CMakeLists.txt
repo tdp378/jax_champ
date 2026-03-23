@@ -13,6 +13,7 @@ install(DIRECTORY
 
 install(PROGRAMS
   scripts/jax_imu_cmdvel_stabilizer.py
+  scripts/jax_imu_leg_height_stabilizer.py
   DESTINATION lib/${PROJECT_NAME}
 )
 
