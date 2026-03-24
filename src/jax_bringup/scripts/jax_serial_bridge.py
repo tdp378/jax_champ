@@ -5,6 +5,7 @@ import serial
 import time
 from trajectory_msgs.msg import JointTrajectory
 from sensor_msgs.msg import BatteryState
+from rcl_interfaces.msg import SetParametersResult
 
 # Arduino PCA9685 channel → ROS joint name mapping
 # Hardware wiring: RH=ch0-2, LH=ch3-5, LF=ch6-8, RF=ch9-11
@@ -22,12 +23,37 @@ class JaxSerialBridge(Node):
 
         self.declare_parameter('serial_port', '/dev/ttyAMA0')
         self.declare_parameter('baud_rate', 115200)
+        self.declare_parameter('command_alpha', 0.35)
+        self.declare_parameter('joint_deadband', 0.01)
+        self.declare_parameter('rf_thigh_deadband', 0.03)
+        self.declare_parameter('max_step', 0.01)
+        self.declare_parameter('rf_thigh_max_step', 0.004)
+        self.declare_parameter('joint_offsets', [0.0] * len(ARDUINO_ORDER))
 
         port = self.get_parameter('serial_port').get_parameter_value().string_value
         baud = self.get_parameter('baud_rate').get_parameter_value().integer_value
+        self.command_alpha = float(self.get_parameter('command_alpha').value)
+        self.joint_deadband = float(self.get_parameter('joint_deadband').value)
+        self.rf_thigh_deadband = float(self.get_parameter('rf_thigh_deadband').value)
+        self.max_step = float(self.get_parameter('max_step').value)
+        self.rf_thigh_max_step = float(self.get_parameter('rf_thigh_max_step').value)
+        offsets_param = self.get_parameter('joint_offsets').value
+        self.joint_offsets = [float(v) for v in offsets_param]
+        if len(self.joint_offsets) != len(ARDUINO_ORDER):
+            self.get_logger().warn(
+                f'joint_offsets length {len(self.joint_offsets)} != {len(ARDUINO_ORDER)}; using zeros'
+            )
+            self.joint_offsets = [0.0] * len(ARDUINO_ORDER)
+
+        self.add_on_set_parameters_callback(self.on_set_parameters)
 
         self.armed = False
         self.ser = None
+        self.target_values = [0.0] * len(ARDUINO_ORDER)
+        self.filtered_values = [0.0] * len(ARDUINO_ORDER)
+        self.last_sent_values = [0.0] * len(ARDUINO_ORDER)
+        self.have_filter_state = False
+        self.force_send = False
 
         try:
             self.ser = serial.Serial(port, baud, timeout=0.05)
@@ -45,6 +71,8 @@ class JaxSerialBridge(Node):
 
         self.battery_pub = self.create_publisher(BatteryState, 'jax/battery', 10)
 
+        # Stable command output loop independent from incoming trajectory frequency.
+        self.create_timer(0.02, self.output_loop)
         # Low-rate timer to drain serial feedback (voltage telemetry)
         self.create_timer(0.1, self.read_feedback)
 
@@ -67,12 +95,83 @@ class JaxSerialBridge(Node):
 
         # Reorder to Arduino channel order; default 0.0 if joint missing
         values = [joint_map.get(name, 0.0) for name in ARDUINO_ORDER]
+        self.target_values = values
 
-        payload = 'J:' + ','.join(f'{v:.4f}' for v in values) + '\n'
+    def output_loop(self):
+        if self.ser is None:
+            return
+
+        values = list(self.target_values)
+
+        # Smooth incoming commands and suppress tiny oscillations.
+        if not self.have_filter_state:
+            self.filtered_values = list(values)
+            self.last_sent_values = list(values)
+            self.have_filter_state = True
+            changed = True
+        else:
+            changed = False
+            for i, target in enumerate(values):
+                step = self.max_step
+                if ARDUINO_ORDER[i] == 'rf_upper_leg_joint':
+                    step = self.rf_thigh_max_step
+
+                prev = self.filtered_values[i]
+                blended = (self.command_alpha * target) + ((1.0 - self.command_alpha) * prev)
+                diff = blended - prev
+                if abs(diff) > step:
+                    self.filtered_values[i] = prev + (step if diff > 0.0 else -step)
+                else:
+                    self.filtered_values[i] = blended
+
+                deadband = self.joint_deadband
+                # RF thigh is usually most sensitive to tiny command chatter.
+                if ARDUINO_ORDER[i] == 'rf_upper_leg_joint':
+                    deadband = self.rf_thigh_deadband
+
+                if abs(self.filtered_values[i] - self.last_sent_values[i]) > deadband:
+                    self.last_sent_values[i] = self.filtered_values[i]
+                    changed = True
+
+        if self.force_send:
+            changed = True
+            self.force_send = False
+
+        if changed:
+            adjusted = [self.last_sent_values[i] + self.joint_offsets[i] for i in range(len(ARDUINO_ORDER))]
+            payload = 'J:' + ','.join(f'{v:.4f}' for v in adjusted) + '\n'
+            try:
+                self.ser.write(payload.encode('utf-8'))
+            except Exception as e:
+                self.get_logger().error(f'Serial write error: {e}')
+
+    def on_set_parameters(self, params):
         try:
-            self.ser.write(payload.encode('utf-8'))
+            for p in params:
+                if p.name == 'joint_offsets':
+                    values = [float(v) for v in p.value]
+                    if len(values) != len(ARDUINO_ORDER):
+                        return SetParametersResult(
+                            successful=False,
+                            reason=f'joint_offsets requires {len(ARDUINO_ORDER)} values'
+                        )
+                    self.joint_offsets = values
+                    self.force_send = True
+                    self.get_logger().info('Updated joint_offsets at runtime')
+                elif p.name == 'command_alpha':
+                    self.command_alpha = float(p.value)
+                elif p.name == 'joint_deadband':
+                    self.joint_deadband = float(p.value)
+                elif p.name == 'rf_thigh_deadband':
+                    self.rf_thigh_deadband = float(p.value)
+                elif p.name == 'max_step':
+                    self.max_step = float(p.value)
+                elif p.name == 'rf_thigh_max_step':
+                    self.rf_thigh_max_step = float(p.value)
+
+            return SetParametersResult(successful=True, reason='')
         except Exception as e:
-            self.get_logger().error(f'Serial write error: {e}')
+            return SetParametersResult(successful=False, reason=str(e))
 
     def read_feedback(self):
         if self.ser is None:

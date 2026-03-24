@@ -31,6 +31,7 @@ def generate_launch_description():
     links_config = os.path.join(jax_locomotion, "config", "links", "links.yaml")
     gait_config = os.path.join(jax_locomotion, "config", "gait", "gait.yaml")
     motion_config = os.path.join(jax_locomotion, "config", "motion", "motion.yaml")
+    joint_calibration_config = os.path.join(jax_bringup, "config", "joint_calibration.yaml")
     rviz_config = os.path.join(jax_bringup, "rviz", "rviz.rviz")
 
     max_vx, max_vy, max_wz = load_motion_limits(motion_config)
@@ -75,7 +76,7 @@ def generate_launch_description():
         executable="jax_serial_bridge.py",
         name="jax_serial_bridge",
         output="screen",
-        parameters=[{"serial_port": serial_port}],
+        parameters=[joint_calibration_config, {"serial_port": serial_port}],
     )
 
     velocity_smoother = Node(

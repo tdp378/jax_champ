@@ -1,0 +1,8 @@
+/jax_serial_bridge:
+  ros__parameters:
+    # run - ros2 param set /jax_serial_bridge joint_offsets "[0.03, 0.0, 0.0, 0.08, 0.0, 0.0, 0.08, 0.0, 0.0, -0.08, 0.0, 0.0]"
+    # ros2 param get /jax_serial_bridge joint_offsets   
+    # ARDUINO_ORDER:
+    # [rh_hip, rh_upper, rh_lower, lh_hip, lh_upper, lh_lower,
+    #  lf_hip, lf_upper, lf_lower, rf_hip, rf_upper, rf_lower]
+    joint_offsets: [0.03, 0.0, 0.0, 0.08, 0.0, 0.0, 0.08, 0.0, 0.0, -0.08, 0.0, 0.0]
