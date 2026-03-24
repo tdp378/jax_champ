@@ -2,114 +2,100 @@
 import rclpy
 from rclpy.node import Node
 import serial
-import os
 import time
-import subprocess  # Added for audio playback
-from sensor_msgs.msg import BatteryState
 from trajectory_msgs.msg import JointTrajectory
+from sensor_msgs.msg import BatteryState
+
+# Arduino PCA9685 channel → ROS joint name mapping
+# Hardware wiring: RH=ch0-2, LH=ch3-5, LF=ch6-8, RF=ch9-11
+ARDUINO_ORDER = [
+    "rh_hip_joint",  "rh_upper_leg_joint",  "rh_lower_leg_joint",  # ch 0-2
+    "lh_hip_joint",  "lh_upper_leg_joint",  "lh_lower_leg_joint",  # ch 3-5
+    "lf_hip_joint",  "lf_upper_leg_joint",  "lf_lower_leg_joint",  # ch 6-8
+    "rf_hip_joint",  "rf_upper_leg_joint",  "rf_lower_leg_joint",  # ch 9-11
+]
+
 
 class JaxSerialBridge(Node):
     def __init__(self):
         super().__init__('jax_serial_bridge')
-        
-        # This matches the 12-channel order your Arduino expects
-        self.arduino_order = [
-            "rh_hip_joint", "rh_upper_leg_joint", "rh_lower_leg_joint",
-            "lh_hip_joint", "lh_upper_leg_joint", "lh_lower_leg_joint",
-            "lf_hip_joint", "lf_upper_leg_joint", "lf_lower_leg_joint",
-            "rf_hip_joint", "rf_upper_leg_joint", "rf_lower_leg_joint"
-        ]
 
-        self.current_pos = [0.0] * 12 
-        self.target_pos = [0.0] * 12   
-        self.step_size = 0.01 # Smooth transition speed
+        self.declare_parameter('serial_port', '/dev/ttyAMA0')
+        self.declare_parameter('baud_rate', 115200)
+
+        port = self.get_parameter('serial_port').get_parameter_value().string_value
+        baud = self.get_parameter('baud_rate').get_parameter_value().integer_value
+
         self.armed = False
+        self.ser = None
 
-        # --- SERIAL SETUP ---
         try:
-            # Open port and wait for Arduino to finish its internal setup
-            self.ser = serial.Serial('/dev/ttyAMA0', 115200, timeout=0.1)
-            time.sleep(2.0) 
-            
-            # Initial Wake attempt
-            self.ser.write(b"WAKE\n")
-            self.get_logger().info("Jax Bridge: Serial Port Open. Waiting for ROS data...")
+            self.ser = serial.Serial(port, baud, timeout=0.05)
+            time.sleep(2.0)
+            self.get_logger().info(f'Serial bridge open: {port} @ {baud}')
         except Exception as e:
-            self.get_logger().error(f"SERIAL CONNECTION FAILED: {e}")
+            self.get_logger().error(f'Serial open failed: {e}')
             return
 
-        # Subscriptions
         self.traj_sub = self.create_subscription(
-            JointTrajectory, 
-            '/joint_group_effort_controller/joint_trajectory', 
-            self.traj_callback, 
+            JointTrajectory,
+            '/joint_group_effort_controller/joint_trajectory',
+            self.traj_callback,
             10)
-        
-        # Publishers (For your battery logs)
+
         self.battery_pub = self.create_publisher(BatteryState, 'jax/battery', 10)
-        
-        # 50Hz Loop
-        self.timer = self.create_timer(0.02, self.loop_callback)
+
+        # Low-rate timer to drain serial feedback (voltage telemetry)
+        self.create_timer(0.1, self.read_feedback)
 
     def traj_callback(self, msg):
-        if not msg.points: return
-        
-        # Map incoming ROS joint names to their target values
-        incoming_data = dict(zip(msg.joint_names, msg.points[0].positions))
-        
-        # Reorder them for the Arduino's 0-11 channel logic
-        for i, joint_name in enumerate(self.arduino_order):
-            if joint_name in incoming_data:
-                self.target_pos[i] = incoming_data[joint_name]
+        if not msg.points or self.ser is None:
+            return
 
-    def loop_callback(self):
-        # 1. ARMING: If we see data but aren't armed, send WAKE and PLAY SOUND
+        # Send WAKE on first command to activate servos/NeoPixels
         if not self.armed:
             try:
-                # Send the serial command for the NeoPixels/Servos
-                self.ser.write(b"WAKE\n")
-                
-                # TRIGGER THE AUDIO CLIP (Non-blocking)
-                # Ensure the path points to your actual .wav file
-                subprocess.Popen(['aplay', '/home/tdp378/jax_champ/src/sounds/bootup_complete.wav']) 
-                
+                self.ser.write(b'WAKE\n')
                 self.armed = True
-                self.get_logger().info("!!! JAX ARMED: NeoPixels Active & Playing Sound !!!")
+                self.get_logger().info('JAX ARMED — servos active')
             except Exception as e:
-                self.get_logger().error(f"Failed to arm or play sound: {e}")
+                self.get_logger().error(f'WAKE failed: {e}')
+                return
 
-        # 2. INTERPOLATION: Move current toward target using step_size
-        changed = False
-        for i in range(12):
-            diff = self.target_pos[i] - self.current_pos[i]
-            if abs(diff) > 0.001:
-                move = self.step_size if abs(diff) > self.step_size else abs(diff)
-                self.current_pos[i] += move if diff > 0 else -move
-                changed = True
+        # Build joint value map from the message
+        joint_map = dict(zip(msg.joint_names, msg.points[0].positions))
 
-        # 3. SEND TO ARDUINO: "J:val1,val2...val12\n"
-        if changed:
-            # Radians are expected by your Arduino's applyPoseRadians function
-            payload = "J:" + ",".join([f"{v:.4f}" for v in self.current_pos]) + "\n"
-            try:
-                self.ser.write(payload.encode('utf-8'))
-            except Exception as e:
-                self.get_logger().error(f"Write failed: {e}")
-        
-        # 4. READ VOLTAGE: Process "VOLT:XX.XX" from Arduino
-        self.read_serial_feedback()
+        # Reorder to Arduino channel order; default 0.0 if joint missing
+        values = [joint_map.get(name, 0.0) for name in ARDUINO_ORDER]
 
-    def read_serial_feedback(self):
+        payload = 'J:' + ','.join(f'{v:.4f}' for v in values) + '\n'
         try:
-            if self.ser.in_waiting > 0:
+            self.ser.write(payload.encode('utf-8'))
+        except Exception as e:
+            self.get_logger().error(f'Serial write error: {e}')
+
+    def read_feedback(self):
+        if self.ser is None:
+            return
+        try:
+            while self.ser.in_waiting > 0:
                 line = self.ser.readline().decode('utf-8', errors='ignore').strip()
-                if "VOLT:" in line:
-                    msg = BatteryState()
-                    # Extract the float from "VOLT:16.45"
-                    msg.voltage = float(line.split(':')[-1])
-                    self.battery_pub.publish(msg)
-        except:
-            pass 
+                if line.startswith('VOLT:'):
+                    batt = BatteryState()
+                    batt.voltage = float(line[5:])
+                    self.battery_pub.publish(batt)
+        except Exception:
+            pass
+
+    def destroy_node(self):
+        if self.ser and self.ser.is_open:
+            try:
+                self.ser.write(b'SLEEP\n')
+                self.ser.close()
+            except Exception:
+                pass
+        super().destroy_node()
+
 
 def main(args=None):
     rclpy.init(args=args)
@@ -117,11 +103,11 @@ def main(args=None):
     try:
         rclpy.spin(node)
     except KeyboardInterrupt:
-        # Put robot in LIMP mode on shutdown
-        node.ser.write(b"SLEEP\n")
+        pass
     finally:
         node.destroy_node()
         rclpy.shutdown()
+
 
 if __name__ == '__main__':
     main()

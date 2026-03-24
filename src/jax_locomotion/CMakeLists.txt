@@ -13,7 +13,6 @@ install(DIRECTORY
 )
 
 install(PROGRAMS
-  scripts/jax_imu_cmdvel_stabilizer.py
   scripts/jax_imu_leg_height_stabilizer.py
   scripts/champ_leg_height_wrapper.py
   DESTINATION lib/${PROJECT_NAME}
