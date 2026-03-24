@@ -20,7 +20,7 @@ from rclpy.node import Node
 
 from std_msgs.msg import Float32MultiArray
 # You may need additional CHAMP message types here
-# from champ_msgs.msg import BodyState, FootTarget
+from champ_msgs.msg import PointArray
 
 
 class ChampLegHeightWrapper(Node):
@@ -46,7 +46,7 @@ class ChampLegHeightWrapper(Node):
         # NOTE: You may need to adjust these topics based on your CHAMP setup
         # Common topics: /champ/foot/links, /champ/body/foot_target, etc.
         self.champ_foot_sub = self.create_subscription(
-            Float32MultiArray,  # Placeholder - adjust to actual CHAMP message type
+            PointArray,  # Use the correct CHAMP message type
             '/champ/foot/links',
             self.champ_foot_callback,
             10
@@ -54,7 +54,7 @@ class ChampLegHeightWrapper(Node):
         
         # Publish adjusted foot targets
         self.adjusted_foot_pub = self.create_publisher(
-            Float32MultiArray,  # Placeholder
+            PointArray,  # Use the correct message type
             '/champ/foot/links_adjusted',
             10
         )
@@ -66,33 +66,42 @@ class ChampLegHeightWrapper(Node):
         if len(msg.data) == 4:
             self.leg_height_offsets = list(msg.data)
     
-    def champ_foot_callback(self, msg: Float32MultiArray):
+    def champ_foot_callback(self, msg: PointArray):
         """
         Receive CHAMP foot targets and apply height adjustments.
         
-        Expected format: [FL_x, FL_y, FL_z, FR_x, FR_y, FR_z, BL_x, BL_y, BL_z, BR_x, BR_y, BR_z]
-        We modify the Z (height) component for each foot.
+        PointArray has lf, rf, lh, rh points with x,y,z.
+        We modify the Z coordinate for each foot.
         """
-        if len(msg.data) != 12:
-            self.get_logger().warn(f"Expected 12 values (4 legs × 3 coords), got {len(msg.data)}")
-            return
+        adjusted_msg = PointArray()
         
-        adjusted_data = list(msg.data)
+        # Copy the points and adjust Z
+        adjusted_msg.lf = msg.lf
+        adjusted_msg.lf.z += self.leg_height_offsets[0]  # FL
         
-        # Modify Z coordinate of each leg's foot position
-        # Indices: FL=2, FR=5, BL=8, BR=11
-        leg_z_indices = [2, 5, 8, 11]
+        adjusted_msg.rf = msg.rf
+        adjusted_msg.rf.z += self.leg_height_offsets[1]  # FR
         
-        for i, leg_idx in enumerate(leg_z_indices):
-            adjusted_data[leg_idx] += self.leg_height_offsets[i]
+        adjusted_msg.lh = msg.lh
+        adjusted_msg.lh.z += self.leg_height_offsets[2]  # BL? Wait, lh is left hind, which is BL?
+        
+        # Assuming leg order: FL, FR, BL, BR
+        # But PointArray has lf, rf, lh, rh
+        # lf = left front = FL
+        # rf = right front = FR
+        # lh = left hind = BL
+        # rh = right hind = BR
+        
+        adjusted_msg.lh.z += self.leg_height_offsets[2]  # BL
+        
+        adjusted_msg.rh = msg.rh
+        adjusted_msg.rh.z += self.leg_height_offsets[3]  # BR
         
         # Publish adjusted targets
-        adjusted_msg = Float32MultiArray()
-        adjusted_msg.data = adjusted_data
         self.adjusted_foot_pub.publish(adjusted_msg)
         
         self.get_logger().debug(
-            f"Adjusted foot targets: {[f'{x:.4f}' for x in adjusted_data]}"
+            f"Adjusted foot targets: LF z={adjusted_msg.lf.z}, RF z={adjusted_msg.rf.z}, LH z={adjusted_msg.lh.z}, RH z={adjusted_msg.rh.z}"
         )
 
 

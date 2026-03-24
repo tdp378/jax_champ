@@ -132,14 +132,16 @@ class JaxModeManager(Node):
         if self.current_mode == 'walk':
             self.cmd_vel_walk_pub.publish(msg)
 
+    def publish_raw_trajectory(self, msg: JointTrajectory):
+        self.controller_traj_pub.publish(msg)
+
     def walk_traj_callback(self, msg: JointTrajectory):
         if self.current_mode == 'walk':
-            self.controller_traj_pub.publish(msg)
+            self.publish_raw_trajectory(msg)
 
     def behavior_traj_callback(self, msg: JointTrajectory):
-        # Allow trajectory passthrough during landing state
-        if self.current_mode in ['stand', 'sit', 'lay', 'paw', 'transition_to_walk', 'landing']:
-            self.controller_traj_pub.publish(msg)
+        if self.current_mode != 'walk':
+            self.publish_raw_trajectory(msg)
 
     def update(self):
         now_sec = self.get_clock().now().nanoseconds / 1e9

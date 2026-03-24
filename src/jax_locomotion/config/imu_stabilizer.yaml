@@ -1,21 +1,23 @@
-# IMU Leg Height Stabilizer Configuration
+jax_imu_leg_height_stabilizer:
+  ros__parameters:
+    enabled: true
+    only_when_moving: true
+    motion_threshold: 0.02
+    publish_diagnostics: true
 
-# Default parameters for IMU leg height stabilizer.
+    kp_roll: 0.05
+    ki_roll: 0.005
+    kd_roll: 0.02
 
-# Height stabilizer configuration
-height_stabilizer:
-  enabled: true
-  target_height: 0.5  # Target leg height in meters
-  height_tolerance: 0.05  # Allowed tolerance in meters
+    kp_pitch: 0.05
+    ki_pitch: 0.005
+    kd_pitch: 0.02
 
-# Filtering parameters
-filter:
-  type: "low-pass"
-  cutoff_frequency: 10.0  # Cutoff frequency in Hz
+    imu_process_noise: 0.001
+    imu_measurement_noise: 0.05
 
-# Control parameters
-control:
-  kp: 1.0  # Proportional gain
-  kd: 0.1  # Derivative gain
-  ki: 0.01  # Integral gain
-  update_rate: 100.0  # Update rate in Hz
+    max_leg_height_adjustment: 0.05
+    deadband_angle: 0.005
+
+    speed_scale_factor: 1.0
+    enable_speed_adaptation: true

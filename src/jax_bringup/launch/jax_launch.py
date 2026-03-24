@@ -70,6 +70,12 @@ def generate_launch_description():
         "links.yaml"
     )
 
+    imu_stabilizer_config = os.path.join(
+        jax_locomotion,
+        "config",
+        "imu_stabilizer.yaml"
+    )
+
     world = os.path.join(
         jax_description,
         "worlds",
@@ -154,20 +160,39 @@ def generate_launch_description():
         parameters=[{"use_sim_time": True}],
     )
 
-    imu_stabilizer = Node(
-        package="jax_locomotion",
-        executable="jax_imu_cmdvel_stabilizer.py",
+    jax_velocity_smoother = Node(
+        package="jax_teleop",
+        executable="jax_velocity_smoother.py",
         output="screen",
         parameters=[
-            {"kp_pitch": 0.7},
-            {"kp_roll": 0.6},
-            {"deadband": 0.02},
-            {"max_correction": 0.20},
-            {"alpha": 0.2},
-            {"enabled": True},
-            {"only_when_moving": True},
-            {"motion_threshold": 0.02},
+            {"use_sim_time": True},
+            motion_config,
         ],
+    )
+
+    imu_leg_height_stabilizer = Node(
+        package="jax_locomotion",
+        executable="jax_imu_leg_height_stabilizer.py",
+        name="jax_imu_leg_height_stabilizer",
+        output="screen",
+        parameters=[imu_stabilizer_config],
+        remappings=[
+            ("/imu/data", "/imu/data"),
+            # feed from the smoothed cmd_vel path so stabilization only runs when walking
+            ("/cmd_vel", "/cmd_vel/smooth"),
+        ],
+    )
+
+    champ_leg_height_wrapper = Node(
+        package="jax_locomotion",
+        executable="champ_leg_height_wrapper.py",
+        name="champ_leg_height_wrapper",
+        output="screen",
+        remappings=[
+            ("/jax/leg_height_offsets", "/jax/leg_height_offsets"),
+            ("/champ/foot/links", "/champ/foot/links"),
+            ("/champ/foot/links_adjusted", "/champ/foot/links_adjusted"),
+        ]
     )
     
     jax_mode_manager = Node(
@@ -179,19 +204,10 @@ def generate_launch_description():
             {"startup_mode": "stand"},
             {"transition_duration": 1.8},
         ],
-    )
-
-    jax_velocity_smoother = Node(
-        package="jax_teleop",
-        executable="jax_velocity_smoother.py",
-        output="screen",
-        parameters=[
-            {"use_sim_time": True},
-            motion_config,
+        remappings=[
+            ("/cmd_vel/smooth_stable", "/cmd_vel/smooth"),
         ],
     )
-
-   
 
     # Add the Remapper Node
     joint_remapper_node = Node(
@@ -225,7 +241,9 @@ def generate_launch_description():
             {"close_loop_odom": False},
         ],
         # Ensure only the cmd_vel is remapped here
-        remappings=[("/cmd_vel/smooth", "/jax/cmd_vel_walk")],
+        remappings=[("/cmd_vel/smooth", "/jax/cmd_vel_walk"),
+        ("/champ/foot/links", "/champ/foot/links_adjusted"),        
+                    ],
     )
 
     joint_state_spawner = TimerAction(
@@ -263,10 +281,11 @@ def generate_launch_description():
             spawn_robot,
             bridge,
             jax_behavior_node,
-            jax_mode_manager,
             jax_velocity_smoother,
+            jax_mode_manager,
+            imu_leg_height_stabilizer,
+            champ_leg_height_wrapper,
             quadruped_controller,
-            imu_stabilizer,
             joint_state_spawner,
             joint_remapper_node,
             trajectory_spawner,

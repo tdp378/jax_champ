@@ -74,10 +74,10 @@ class JaxBehaviorNode(Node):
         elif mode == "lay":
             self.get_logger().info("Behavior: lay")
             self.publish_pose([
-                0.0,  0.8, 0.8,
-                0.0,  0.8, 0.8,
-                0.0,  0.8, 0.8,
-                0.0,  0.8, 0.8,
+                0.0,  0.8, 0.0,
+                0.0,  0.8, 0.0,
+                0.0,  0.8, 0.0,
+                0.0,  0.8, 0.0,
             ], move_time=1.5)
 
 
