@@ -82,7 +82,7 @@ def generate_launch_description():
                 package='jax_behaviors',
                 executable='jax_mode_manager.py',
                 name='jax_mode_manager',
-                parameters=[{'startup_mode': 'lay'}],
+                parameters=[{'startup_mode': 'stand'}],
                 output='screen'
             )
         ]

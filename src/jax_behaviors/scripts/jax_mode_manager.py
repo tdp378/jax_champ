@@ -14,7 +14,7 @@ class JaxModeManager(Node):
         super().__init__('jax_mode_manager')
 
         self.declare_parameter('transition_duration', 1.8)
-        self.declare_parameter('startup_mode', 'lay')
+        self.declare_parameter('startup_mode', 'stand')
 
         # Use a consistent naming convention
         self.current_mode = str(self.get_parameter('startup_mode').value).strip().lower()
@@ -91,7 +91,10 @@ class JaxModeManager(Node):
     def mode_callback(self, msg: String):
         new_mode = msg.data.strip().lower()
 
-        if new_mode not in ['walk', 'stand', 'sit', 'lay', 'paw']:
+        if new_mode == 'body':
+            new_mode = 'pose'
+
+        if new_mode not in ['walk', 'stand', 'sit', 'lay', 'paw', 'pose']:
             self.get_logger().warn(f'Ignoring unknown mode: {new_mode}')
             return
 

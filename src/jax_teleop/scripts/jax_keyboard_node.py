@@ -42,6 +42,7 @@ class JaxKeyboardNode(Node):
         self.declare_parameter('stand_mode_name', 'stand')
         self.declare_parameter('sit_mode_name', 'sit')
         self.declare_parameter('lay_mode_name', 'lay')
+        self.declare_parameter('pose_mode_name', 'pose')
 
         cmd_vel_topic = str(self.get_parameter('cmd_vel_topic').value)
         mode_topic = str(self.get_parameter('mode_topic').value)
@@ -60,6 +61,7 @@ class JaxKeyboardNode(Node):
         self.stand_mode_name = str(self.get_parameter('stand_mode_name').value)
         self.sit_mode_name = str(self.get_parameter('sit_mode_name').value)
         self.lay_mode_name = str(self.get_parameter('lay_mode_name').value)
+        self.pose_mode_name = str(self.get_parameter('pose_mode_name').value)
 
         self.cmd_pub = self.create_publisher(Twist, cmd_vel_topic, 10)
         self.mode_pub = self.create_publisher(String, mode_topic, 10)
@@ -127,7 +129,7 @@ class JaxKeyboardNode(Node):
             "JAX TELEOP",
             "============================================================",
             "Move : w/s  a/d  q/e  z/c  x stop  SPACE estop",
-            "Mode : m walk  1 stand  2 sit  3 lay",
+            "Mode : m walk  1 stand  2 sit  3 lay  4 pose",
             "Speed: + faster  - slower",
             "",
             f"Mode      : {self.current_mode}",
@@ -205,6 +207,10 @@ class JaxKeyboardNode(Node):
             self.zero_cmd()
             self.publish_mode(self.lay_mode_name)
             self.status_msg = 'mode -> lay'
+        elif key == '4':
+            self.zero_cmd()
+            self.publish_mode(self.pose_mode_name)
+            self.status_msg = 'mode -> pose'
         elif key in ['+', '=']:
             self.speed_scale = min(
                 self.speed_scale + self.speed_scale_step,
