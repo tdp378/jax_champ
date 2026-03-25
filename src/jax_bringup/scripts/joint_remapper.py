@@ -12,11 +12,17 @@ class JointRemapper(Node):
     def __init__(self):
         super().__init__('joint_remapper')
 
-        # Linkage model parameters (legacy behavior)
-        self.declare_parameter('neutral_limit', 1.0)
-        self.declare_parameter('max_physical', 2.0)
+        # Asymmetric passive zone: calf command is passed through unchanged here.
+        self.declare_parameter('thigh_forward_bind', -0.35)
+        self.declare_parameter('thigh_backward_bind', 0.90)
+        self.declare_parameter('linkage_ratio', 1.0)
+        self.declare_parameter('calf_direction_sign', 1.0)
+        self.declare_parameter('max_physical', 0.90)
 
-        self.NEUTRAL_LIMIT = float(self.get_parameter('neutral_limit').value)
+        self.THIGH_FORWARD_BIND = float(self.get_parameter('thigh_forward_bind').value)
+        self.THIGH_BACKWARD_BIND = float(self.get_parameter('thigh_backward_bind').value)
+        self.LINKAGE_RATIO = float(self.get_parameter('linkage_ratio').value)
+        self.CALF_DIRECTION_SIGN = float(self.get_parameter('calf_direction_sign').value)
         self.MAX_PHYSICAL = float(self.get_parameter('max_physical').value)
 
         # Joint indices per leg: [hip, thigh, calf]
@@ -58,25 +64,27 @@ class JointRemapper(Node):
         self.js_pub = self.create_publisher(JointState, '/joint_states', 10)
 
         self.get_logger().info(
-            f'JointRemapper active (neutral_limit={self.NEUTRAL_LIMIT:.3f}, '
+            f'JointRemapper active (passive_zone=['
+            f'{self.THIGH_FORWARD_BIND:.3f}, {self.THIGH_BACKWARD_BIND:.3f}], '
+            f'ratio={self.LINKAGE_RATIO:.3f}, '
+            f'calf_sign={self.CALF_DIRECTION_SIGN:.1f}, '
             f'max_physical={self.MAX_PHYSICAL:.3f})'
         )
 
     def apply_linkage_logic(self, thigh_val: float, calf_target: float) -> float:
-        # Base remap: calf and thigh are mechanically coupled.
-        motor_request = calf_target - thigh_val
-
-        # Cooperative limit logic near and beyond neutral limits.
-        if thigh_val > self.NEUTRAL_LIMIT:
-            assist_offset = thigh_val - self.NEUTRAL_LIMIT
-            final_pos = max(motor_request, -self.NEUTRAL_LIMIT + assist_offset)
-        elif thigh_val < -self.NEUTRAL_LIMIT:
-            assist_offset = thigh_val + self.NEUTRAL_LIMIT
-            final_pos = min(motor_request, self.NEUTRAL_LIMIT + assist_offset)
+        # True passive zone behavior: if thigh is within bind range, do not
+        # move calf unless calf is explicitly commanded.
+        if self.THIGH_FORWARD_BIND <= thigh_val <= self.THIGH_BACKWARD_BIND:
+            final_pos = calf_target
         else:
-            final_pos = max(min(motor_request, self.NEUTRAL_LIMIT), -self.NEUTRAL_LIMIT)
+            if thigh_val > self.THIGH_BACKWARD_BIND:
+                delta = thigh_val - self.THIGH_BACKWARD_BIND
+            else:
+                delta = thigh_val - self.THIGH_FORWARD_BIND
 
-        # Final absolute physical clamp
+            correction = -delta * self.LINKAGE_RATIO * self.CALF_DIRECTION_SIGN
+            final_pos = calf_target + correction
+
         final_pos = max(min(final_pos, self.MAX_PHYSICAL), -self.MAX_PHYSICAL)
         return final_pos
 
