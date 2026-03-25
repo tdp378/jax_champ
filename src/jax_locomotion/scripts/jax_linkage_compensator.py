@@ -147,6 +147,10 @@ class JaxLinkageCompensator(Node):
         self.declare_parameter('neutral_max',        0.3)   # rad
         self.declare_parameter('linkage_ratio',      0.5)   # rad/rad
         self.declare_parameter('max_correction',     0.8)   # rad
+        # Display neutral zone for the RViz JointState path (default 0/0 = always
+        # show full passive calf motion regardless of motor passive zone)
+        self.declare_parameter('display_neutral_min', 0.0)
+        self.declare_parameter('display_neutral_max', 0.0)
         self.declare_parameter('thigh_backward_limit', 0.9)  # rad
         self.declare_parameter('thigh_forward_limit', -0.9)  # rad
         self.declare_parameter('calf_min_angle',     -0.9)  # rad
@@ -159,6 +163,8 @@ class JaxLinkageCompensator(Node):
         self.neutral_max       = float(self.get_parameter('neutral_max').value)
         self.linkage_ratio     = float(self.get_parameter('linkage_ratio').value)
         self.max_correction    = float(self.get_parameter('max_correction').value)
+        self.display_neutral_min = float(self.get_parameter('display_neutral_min').value)
+        self.display_neutral_max = float(self.get_parameter('display_neutral_max').value)
         self.thigh_backward_limit = float(self.get_parameter('thigh_backward_limit').value)
         self.thigh_forward_limit = float(self.get_parameter('thigh_forward_limit').value)
         self.calf_min_angle    = float(self.get_parameter('calf_min_angle').value)
@@ -211,7 +217,8 @@ class JaxLinkageCompensator(Node):
 
         self.get_logger().info(
             f"Jax Linkage Compensator started\n"
-            f"  Neutral zone : [{self.neutral_min:.3f}, {self.neutral_max:.3f}] rad\n"
+            f"  Motor passive zone : [{self.neutral_min:.3f}, {self.neutral_max:.3f}] rad\n"
+            f"  Display neutral    : [{self.display_neutral_min:.3f}, {self.display_neutral_max:.3f}] rad\n"
             f"  Linkage ratio: {self.linkage_ratio:.3f} rad/rad\n"
             f"  Max correction: {self.max_correction:.3f} rad\n"
             f"  Thigh limits: [{self.thigh_forward_limit:.3f}, {self.thigh_backward_limit:.3f}] rad\n"
@@ -423,8 +430,8 @@ class JaxLinkageCompensator(Node):
             thigh_angle = pos[t_idx]
             correction = compute_linkage_correction(
                 thigh_angle,
-                self.neutral_min,
-                self.neutral_max,
+                self.display_neutral_min,
+                self.display_neutral_max,
                 self.linkage_ratio,
                 self.max_correction
             )

@@ -3,29 +3,29 @@ jax_linkage_compensator:
     enabled: true
     publish_diagnostics: true
 
-    # True parallel linkage: no deadband / neutral zone.
-    # Keep both at 0.0 so compensation is applied across the whole thigh range.
-    neutral_min: 0.0
-    neutral_max: 0.0
+    # Motor passive zone — calf motor does NOT move while thigh is inside this range.
+    # The linkage naturally drives the calf without motor assistance.
+    #   +0.90 backward: linkage fully closes the calf
+    #   -0.35 forward : linkage fully opens the calf
+    neutral_min: -0.35
+    neutral_max: 0.90
 
-    # Calf correction (rad) per radian of thigh motion.
-    # For a 1:1 starting point over a +/-0.9 rad thigh range, use 1.0.
+    # RViz display neutral zone — keep at 0.0/0.0 so the visualisation always
+    # shows the full passive calf motion even when the motor is not moving.
+    display_neutral_min: 0.0
+    display_neutral_max: 0.0
+
     linkage_ratio: 1.0
 
-    # Safety clamp on calf correction (rad).
-    # Must be at least as large as the passive calf motion at the thigh limit,
-    # otherwise the model clips early and the visualization will be wrong.
+    # Must be >= max passive travel (thigh_limit * linkage_ratio)
     max_correction: 0.90
 
-    # Thigh hard-stop angles (rad).
-    # Backward is positive, forward is negative.
+    # Beyond these thigh angles the calf motor must move to allow further travel
     thigh_backward_limit: 0.90
-    thigh_forward_limit: -0.90
+    thigh_forward_limit: -0.35
 
-    # Absolute calf workspace (rad).
     calf_min_angle: -0.90
     calf_max_angle: 0.90
 
-    # At full forward thigh angle, the calf is restricted to a small window
-    # around the passive linkage position.
+    # Calf travel window around passive position at the forward hard-stop
     forward_calf_window: 0.10
