@@ -17,7 +17,7 @@ class JointRemapper(Node):
         self.declare_parameter('thigh_backward_bind', 0.90)
         # Multiplies sensed thigh angle before applying passive-zone logic.
         # Use -1.0 if thigh sign is reversed on your hardware.
-        self.declare_parameter('thigh_direction_sign', 1.0)
+        self.declare_parameter('thigh_direction_sign', -1.0)
         self.declare_parameter('linkage_ratio', 1.0)
         self.declare_parameter('calf_direction_sign', 1.0)
         self.declare_parameter('max_physical', 0.90)
@@ -130,8 +130,8 @@ class JointRemapper(Node):
         legs = [('lf', 1, 2), ('rf', 4, 5), ('lh', 7, 8), ('rh', 10, 11)]
         for leg_name, t_idx, c_idx in legs:
             if c_idx < len(pos) and t_idx < len(pos):
-            target = self.apply_linkage_logic(pos[t_idx], pos[c_idx])
-            pos[c_idx] = self._limit_calf_step(leg_name, target)
+                target = self.apply_linkage_logic(pos[t_idx], pos[c_idx])
+                pos[c_idx] = self._limit_calf_step(leg_name, target)
 
         new_js.position = pos
         self.js_pub.publish(new_js)
