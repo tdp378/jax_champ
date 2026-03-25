@@ -113,7 +113,15 @@ class JointRemapper(Node):
         # True passive zone behavior: if thigh is within bind range, do not
         # move calf unless calf is explicitly commanded.
         if self.THIGH_FORWARD_BIND <= thigh_eff <= self.THIGH_BACKWARD_BIND:
-            final_pos = calf_target
+            # Passive zone: calf motor holds, but the physical calf position is
+            # motor_cmd + linkage_contribution.  As thigh approaches a bind point
+            # the linkage has already consumed available travel, so clamp the motor
+            # command so the combined total never exceeds the physical limits.
+            # linkage_contribution ≈ thigh_eff * LINKAGE_RATIO
+            linkage_contribution = thigh_eff * self.LINKAGE_RATIO
+            upper = self.MAX_PHYSICAL - linkage_contribution
+            lower = -self.MAX_PHYSICAL - linkage_contribution
+            final_pos = max(min(calf_target, upper), lower)
             correction_active = False
         else:
             if thigh_eff > self.THIGH_BACKWARD_BIND:
