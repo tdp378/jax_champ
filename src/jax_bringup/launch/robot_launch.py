@@ -5,7 +5,7 @@ from ament_index_python.packages import get_package_share_directory
 
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
-from launch.conditions import IfCondition
+from launch.conditions import IfCondition, UnlessCondition
 from launch.substitutions import Command, LaunchConfiguration
 
 from launch_ros.actions import Node
@@ -21,6 +21,7 @@ def load_motion_limits(motion_config_path):
 def generate_launch_description():
     use_rviz = LaunchConfiguration("rviz")
     serial_port = LaunchConfiguration("serial_port")
+    gui_control = LaunchConfiguration("gui_control")
 
     jax_description = get_package_share_directory("jax_description")
     jax_locomotion = get_package_share_directory("jax_locomotion")
@@ -31,6 +32,7 @@ def generate_launch_description():
     links_config = os.path.join(jax_locomotion, "config", "links", "links.yaml")
     gait_config = os.path.join(jax_locomotion, "config", "gait", "gait.yaml")
     motion_config = os.path.join(jax_locomotion, "config", "motion", "motion.yaml")
+    linkage_compensator_config = os.path.join(jax_locomotion, "config", "linkage_compensator.yaml")
     joint_calibration_config = os.path.join(jax_bringup, "config", "joint_calibration.yaml")
     rviz_config = os.path.join(jax_bringup, "rviz", "rviz.rviz")
 
@@ -53,6 +55,7 @@ def generate_launch_description():
         executable="quadruped_controller_node",
         name="quadruped_controller",
         output="screen",
+        condition=UnlessCondition(gui_control),
         parameters=[
             {"gazebo": False},
             {"publish_joint_states": True},
@@ -71,12 +74,45 @@ def generate_launch_description():
         ],
     )
 
+    linkage_compensator = Node(
+        package="jax_locomotion",
+        executable="jax_linkage_compensator.py",
+        name="jax_linkage_compensator",
+        output="screen",
+        parameters=[linkage_compensator_config],
+        remappings=[
+            ('/joint_group_position_controller/command',
+             '/joint_group_effort_controller/joint_trajectory'),
+        ],
+    )
+
     serial_bridge = Node(
         package="jax_bringup",
         executable="jax_serial_bridge.py",
         name="jax_serial_bridge",
         output="screen",
         parameters=[joint_calibration_config, {"serial_port": serial_port}],
+        remappings=[
+            ('/joint_group_effort_controller/joint_trajectory',
+             '/jax/joint_commands/linkage_corrected'),
+        ],
+    )
+
+    joint_state_publisher_gui = Node(
+        package="joint_state_publisher_gui",
+        executable="joint_state_publisher_gui",
+        name="joint_state_publisher_gui",
+        output="screen",
+        condition=IfCondition(gui_control),
+        remappings=[('/joint_states', '/joint_states_raw')],
+    )
+
+    joint_state_to_trajectory = Node(
+        package="jax_locomotion",
+        executable="jax_joint_state_to_trajectory.py",
+        name="jax_joint_state_to_trajectory",
+        output="screen",
+        condition=IfCondition(gui_control),
     )
 
     velocity_smoother = Node(
@@ -84,6 +120,7 @@ def generate_launch_description():
         executable="jax_velocity_smoother.py",
         name="jax_velocity_smoother",
         output="screen",
+        condition=UnlessCondition(gui_control),
         parameters=[motion_config],
     )
 
@@ -99,8 +136,12 @@ def generate_launch_description():
     return LaunchDescription([
         DeclareLaunchArgument("rviz", default_value="false"),
         DeclareLaunchArgument("serial_port", default_value="/dev/ttyAMA0"),
+        DeclareLaunchArgument("gui_control", default_value="false"),
         robot_state_publisher,
         quadruped_controller,
+        linkage_compensator,
+        joint_state_publisher_gui,
+        joint_state_to_trajectory,
         serial_bridge,
         velocity_smoother,
         rviz,

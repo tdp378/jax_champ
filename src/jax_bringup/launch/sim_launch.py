@@ -5,7 +5,7 @@ from ament_index_python.packages import get_package_share_directory
 
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, TimerAction
-from launch.conditions import IfCondition
+from launch.conditions import IfCondition, UnlessCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import Command, LaunchConfiguration
 
@@ -26,6 +26,7 @@ def load_motion_limits(motion_config_path):
 
 def generate_launch_description():
     use_rviz = LaunchConfiguration("rviz")
+    gui_control = LaunchConfiguration("gui_control")
 
     jax_description = get_package_share_directory("jax_description")
     jax_locomotion = get_package_share_directory("jax_locomotion")
@@ -34,6 +35,9 @@ def generate_launch_description():
     robot_xacro = os.path.join(jax_description, "urdf", "jax_robot.xacro")
     ros_control_config = os.path.join(
         jax_locomotion, "config", "ros_control", "ros_control.yaml"
+    )
+    linkage_compensator_config = os.path.join(
+        jax_locomotion, "config", "linkage_compensator.yaml"
     )
     joints_config = os.path.join(jax_locomotion, "config", "joints", "joints.yaml")
     links_config = os.path.join(jax_locomotion, "config", "links", "links.yaml")
@@ -107,13 +111,14 @@ def generate_launch_description():
         executable="quadruped_controller_node",
         name="quadruped_controller",
         output="screen",
+        condition=UnlessCondition(gui_control),
         parameters=[
             {"use_sim_time": True},
             {"gazebo": True},
             {"publish_joint_states": False},
             {"publish_joint_control": True},
             {"publish_foot_contacts": False},
-            {"joint_controller_topic": "/joint_group_effort_controller/joint_trajectory"},
+            {"joint_controller_topic": "/champ/joint_commands/raw"},
             {"urdf": Command(["xacro ", robot_xacro])},
             joints_config,
             links_config,
@@ -123,6 +128,44 @@ def generate_launch_description():
             {"gait.max_angular_velocity_z": max_wz},
             {"hardware_connected": False},
             {"close_loop_odom": False},
+        ],
+    )
+
+    linkage_compensator = Node(
+        package="jax_locomotion",
+        executable="jax_linkage_compensator.py",
+        name="jax_linkage_compensator",
+        output="screen",
+        parameters=[linkage_compensator_config, {"use_sim_time": True}],
+        remappings=[
+            # subscribe from CHAMP's actual output
+            ('/joint_group_position_controller/command', '/champ/joint_commands/raw'),
+            # publish corrected commands directly to the ros2_control controller
+            ('/jax/joint_commands/linkage_corrected',
+             '/joint_group_effort_controller/joint_trajectory'),
+        ],
+    )
+
+    joint_state_publisher_gui = Node(
+        package="joint_state_publisher_gui",
+        executable="joint_state_publisher_gui",
+        name="joint_state_publisher_gui",
+        output="screen",
+        condition=IfCondition(gui_control),
+        parameters=[{"use_sim_time": True}],
+        remappings=[('/joint_states', '/joint_states_raw')],
+    )
+
+    joint_state_to_trajectory = Node(
+        package="jax_locomotion",
+        executable="jax_joint_state_to_trajectory.py",
+        name="jax_joint_state_to_trajectory",
+        output="screen",
+        condition=IfCondition(gui_control),
+        parameters=[{"use_sim_time": True}],
+        remappings=[
+            ('/jax/joint_commands/linkage_corrected',
+             '/joint_group_effort_controller/joint_trajectory'),
         ],
     )
 
@@ -162,12 +205,16 @@ def generate_launch_description():
 
     return LaunchDescription(
         [
-            DeclareLaunchArgument("rviz", default_value="true"),
+            DeclareLaunchArgument("rviz", default_value="false"),
+            DeclareLaunchArgument("gui_control", default_value="false"),
             gazebo,
             robot_state_publisher,
             spawn_robot,
             bridge,
             quadruped_controller,
+            linkage_compensator,
+            joint_state_publisher_gui,
+            joint_state_to_trajectory,
             joint_state_spawner,
             trajectory_spawner,
             rviz,

@@ -1,0 +1,31 @@
+jax_linkage_compensator:
+  ros__parameters:
+    enabled: true
+    publish_diagnostics: true
+
+    # True parallel linkage: no deadband / neutral zone.
+    # Keep both at 0.0 so compensation is applied across the whole thigh range.
+    neutral_min: 0.0
+    neutral_max: 0.0
+
+    # Calf correction (rad) per radian of thigh motion.
+    # For a 1:1 starting point over a +/-0.9 rad thigh range, use 1.0.
+    linkage_ratio: 1.0
+
+    # Safety clamp on calf correction (rad).
+    # Must be at least as large as the passive calf motion at the thigh limit,
+    # otherwise the model clips early and the visualization will be wrong.
+    max_correction: 0.90
+
+    # Thigh hard-stop angles (rad).
+    # Backward is positive, forward is negative.
+    thigh_backward_limit: 0.90
+    thigh_forward_limit: -0.90
+
+    # Absolute calf workspace (rad).
+    calf_min_angle: -0.90
+    calf_max_angle: 0.90
+
+    # At full forward thigh angle, the calf is restricted to a small window
+    # around the passive linkage position.
+    forward_calf_window: 0.10
