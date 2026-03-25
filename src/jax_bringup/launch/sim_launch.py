@@ -36,9 +36,6 @@ def generate_launch_description():
     ros_control_config = os.path.join(
         jax_locomotion, "config", "ros_control", "ros_control.yaml"
     )
-    linkage_compensator_config = os.path.join(
-        jax_locomotion, "config", "linkage_compensator.yaml"
-    )
     joints_config = os.path.join(jax_locomotion, "config", "joints", "joints.yaml")
     links_config = os.path.join(jax_locomotion, "config", "links", "links.yaml")
     gait_config = os.path.join(jax_locomotion, "config", "gait", "gait.yaml")
@@ -118,7 +115,7 @@ def generate_launch_description():
             {"publish_joint_states": False},
             {"publish_joint_control": True},
             {"publish_foot_contacts": False},
-            {"joint_controller_topic": "/champ/joint_commands/raw"},
+            {"joint_controller_topic": "/jax/walk_joint_trajectory_raw"},
             {"urdf": Command(["xacro ", robot_xacro])},
             joints_config,
             links_config,
@@ -131,19 +128,12 @@ def generate_launch_description():
         ],
     )
 
-    linkage_compensator = Node(
-        package="jax_locomotion",
-        executable="jax_linkage_compensator.py",
-        name="jax_linkage_compensator",
+    joint_remapper = Node(
+        package="jax_bringup",
+        executable="joint_remapper.py",
+        name="joint_remapper",
         output="screen",
-        parameters=[linkage_compensator_config, {"use_sim_time": True}],
-        remappings=[
-            # subscribe from CHAMP's actual output
-            ('/joint_group_position_controller/command', '/champ/joint_commands/raw'),
-            # publish corrected commands directly to the ros2_control controller
-            ('/jax/joint_commands/linkage_corrected',
-             '/joint_group_effort_controller/joint_trajectory'),
-        ],
+        parameters=[{"use_sim_time": True}],
     )
 
     joint_state_publisher_gui = Node(
@@ -212,7 +202,7 @@ def generate_launch_description():
             spawn_robot,
             bridge,
             quadruped_controller,
-            linkage_compensator,
+            joint_remapper,
             joint_state_publisher_gui,
             joint_state_to_trajectory,
             joint_state_spawner,

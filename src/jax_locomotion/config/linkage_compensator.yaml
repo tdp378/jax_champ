@@ -2,6 +2,8 @@ jax_linkage_compensator:
   ros__parameters:
     enabled: true
     publish_diagnostics: true
+    lock_calf_in_passive_zone: true
+    passive_zone_calf_cmd_deadband: 0.01
 
     # Motor passive zone — calf motor does NOT move while thigh is inside this range.
     # The linkage naturally drives the calf without motor assistance.

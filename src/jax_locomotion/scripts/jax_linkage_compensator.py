@@ -98,6 +98,12 @@ class JaxLinkageCompensator(Node):
 
         self.declare_parameter('enabled', True)
         self.declare_parameter('publish_diagnostics', True)
+        self.declare_parameter('lock_calf_in_passive_zone', True)
+        self.declare_parameter('passive_zone_calf_cmd_deadband', 0.01)
+        # For /joint_states_raw input path:
+        #  - True  => apply display model (RViz visualization behavior)
+        #  - False => apply motor model (actuator command behavior)
+        self.declare_parameter('joint_state_use_display_model', True)
 
         self.neutral_min = float(self.get_parameter('neutral_min').value)
         self.neutral_max = float(self.get_parameter('neutral_max').value)
@@ -116,6 +122,20 @@ class JaxLinkageCompensator(Node):
 
         self.enabled = bool(self.get_parameter('enabled').value)
         self.publish_diagnostics = bool(self.get_parameter('publish_diagnostics').value)
+        self.lock_calf_in_passive_zone = bool(
+            self.get_parameter('lock_calf_in_passive_zone').value
+        )
+        self.passive_zone_calf_cmd_deadband = float(
+            self.get_parameter('passive_zone_calf_cmd_deadband').value
+        )
+        self.joint_state_use_display_model = bool(
+            self.get_parameter('joint_state_use_display_model').value
+        )
+
+        # Last commanded calf angle per leg for hard passive-zone hold behavior.
+        self._held_calf_cmd = {}
+        # Last incoming raw calf input per leg (for detecting explicit calf commands).
+        self._last_raw_calf_in = {}
 
         self.joint_cmd_sub = self.create_subscription(
             JointTrajectory,
@@ -154,6 +174,9 @@ class JaxLinkageCompensator(Node):
             f"  Thigh limits       : [{self.thigh_forward_limit:.3f}, {self.thigh_backward_limit:.3f}] rad\n"
             f"  Calf limits        : [{self.calf_min_angle:.3f}, {self.calf_max_angle:.3f}] rad\n"
             f"  Forward calf window: {self.forward_calf_window:.3f} rad\n"
+            f"  Passive calf lock   : {self.lock_calf_in_passive_zone}\n"
+            f"  Passive cmd deadband: {self.passive_zone_calf_cmd_deadband:.3f} rad\n"
+            f"  JointState model    : {'display' if self.joint_state_use_display_model else 'motor'}\n"
             f"  Enabled            : {self.enabled}"
         )
 
@@ -184,7 +207,7 @@ class JaxLinkageCompensator(Node):
 
         return min_calf, max_calf
 
-    def _apply_motor_model(self, raw_calf: float, thigh_angle: float):
+    def _apply_motor_model(self, leg: str, raw_calf: float, thigh_angle: float):
         """
         Motor-command path: inside passive zone, leave calf command unchanged.
         """
@@ -198,12 +221,28 @@ class JaxLinkageCompensator(Node):
         correction *= self.calf_direction_sign
 
         if abs(correction) < 1e-9:
-            # Hard guarantee: no compensator-induced calf motion in passive zone.
+            # Hard guarantee: in passive zone, keep calf motor command fixed.
+            if self.lock_calf_in_passive_zone:
+                prev_raw = self._last_raw_calf_in.get(leg, raw_calf)
+                raw_changed = abs(raw_calf - prev_raw) > self.passive_zone_calf_cmd_deadband
+                self._last_raw_calf_in[leg] = raw_calf
+
+                if raw_changed:
+                    # User explicitly commanded calf; accept and hold this new value.
+                    self._held_calf_cmd[leg] = raw_calf
+
+                held = self._held_calf_cmd.get(leg, raw_calf)
+                self._held_calf_cmd[leg] = held
+                return held, 0.0, self.calf_min_angle, self.calf_max_angle
+
+            self._last_raw_calf_in[leg] = raw_calf
             return raw_calf, 0.0, self.calf_min_angle, self.calf_max_angle
 
         corrected_calf = raw_calf + correction
         min_calf, max_calf = self._compute_calf_limits(thigh_angle, correction)
         corrected_calf = _clamp(corrected_calf, min_calf, max_calf)
+        self._held_calf_cmd[leg] = corrected_calf
+        self._last_raw_calf_in[leg] = raw_calf
         return corrected_calf, correction, min_calf, max_calf
 
     def _apply_display_model(self, raw_calf: float, thigh_angle: float):
@@ -279,6 +318,7 @@ class JaxLinkageCompensator(Node):
                 thigh_angle = corrected_point.positions[t_idx]
                 raw_calf = corrected_point.positions[c_idx]
                 corrected_calf, correction, min_calf, max_calf = self._apply_motor_model(
+                    leg,
                     raw_calf,
                     thigh_angle,
                 )
@@ -329,10 +369,17 @@ class JaxLinkageCompensator(Node):
 
             thigh_angle = pos[t_idx]
             raw_calf = pos[c_idx]
-            corrected_calf, correction, min_calf, max_calf = self._apply_display_model(
-                raw_calf,
-                thigh_angle,
-            )
+            if self.joint_state_use_display_model:
+                corrected_calf, correction, min_calf, max_calf = self._apply_display_model(
+                    raw_calf,
+                    thigh_angle,
+                )
+            else:
+                corrected_calf, correction, min_calf, max_calf = self._apply_motor_model(
+                    leg,
+                    raw_calf,
+                    thigh_angle,
+                )
             pos[c_idx] = corrected_calf
 
             if self.publish_diagnostics:

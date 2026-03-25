@@ -33,7 +33,6 @@ def generate_launch_description():
     links_config = os.path.join(jax_locomotion, "config", "links", "links.yaml")
     gait_config = os.path.join(jax_locomotion, "config", "gait", "gait.yaml")
     motion_config = os.path.join(jax_locomotion, "config", "motion", "motion.yaml")
-    linkage_compensator_config = os.path.join(jax_locomotion, "config", "linkage_compensator.yaml")
     joint_calibration_config = os.path.join(jax_bringup, "config", "joint_calibration.yaml")
     rviz_config = os.path.join(jax_bringup, "rviz", "rviz.rviz")
 
@@ -62,7 +61,7 @@ def generate_launch_description():
             {"publish_joint_states": True},
             {"publish_joint_control": True},
             {"publish_foot_contacts": False},
-            {"joint_controller_topic": "/joint_group_effort_controller/joint_trajectory"},
+            {"joint_controller_topic": "/jax/walk_joint_trajectory_raw"},
             {"urdf": Command(["xacro ", robot_xacro])},
             joints_config,
             links_config,
@@ -75,15 +74,14 @@ def generate_launch_description():
         ],
     )
 
-    linkage_compensator = Node(
-        package="jax_locomotion",
-        executable="jax_linkage_compensator.py",
-        name="jax_linkage_compensator",
+    joint_remapper = Node(
+        package="jax_bringup",
+        executable="joint_remapper.py",
+        name="joint_remapper",
         output="screen",
-        parameters=[linkage_compensator_config],
         remappings=[
-            ('/joint_group_position_controller/command',
-             '/joint_group_effort_controller/joint_trajectory'),
+            ('/joint_group_effort_controller/joint_trajectory',
+             '/jax/joint_commands/linkage_corrected'),
         ],
     )
 
@@ -141,7 +139,7 @@ def generate_launch_description():
         DeclareLaunchArgument("local_gui", default_value="false"),
         robot_state_publisher,
         quadruped_controller,
-        linkage_compensator,
+        joint_remapper,
         joint_state_publisher_gui,
         joint_state_to_trajectory,
         serial_bridge,
