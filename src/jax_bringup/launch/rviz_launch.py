@@ -21,6 +21,7 @@ def generate_launch_description():
     use_sim_time = LaunchConfiguration("use_sim_time")
     gui = LaunchConfiguration("gui")
     rviz = LaunchConfiguration("rviz")
+    enable_compensator = LaunchConfiguration("enable_compensator")
 
     xacro_file = PathJoinSubstitution(
         [description_pkg, "urdf", "jax_robot.xacro"]
@@ -67,6 +68,7 @@ def generate_launch_description():
         name="jax_linkage_compensator",
         output="screen",
         parameters=[linkage_compensator_config, {"use_sim_time": use_sim_time}],
+        condition=IfCondition(enable_compensator),
     )
 
     rviz2 = Node(
@@ -83,6 +85,7 @@ def generate_launch_description():
         DeclareLaunchArgument("use_sim_time", default_value="false"),
         DeclareLaunchArgument("gui", default_value="true"),
         DeclareLaunchArgument("rviz", default_value="true"),
+        DeclareLaunchArgument("enable_compensator", default_value="true"),
 
         robot_state_publisher,
         joint_state_publisher_gui,

@@ -22,6 +22,7 @@ def generate_launch_description():
     use_rviz = LaunchConfiguration("rviz")
     serial_port = LaunchConfiguration("serial_port")
     gui_control = LaunchConfiguration("gui_control")
+    local_gui = LaunchConfiguration("local_gui")
 
     jax_description = get_package_share_directory("jax_description")
     jax_locomotion = get_package_share_directory("jax_locomotion")
@@ -103,7 +104,7 @@ def generate_launch_description():
         executable="joint_state_publisher_gui",
         name="joint_state_publisher_gui",
         output="screen",
-        condition=IfCondition(gui_control),
+        condition=IfCondition(local_gui),
         remappings=[('/joint_states', '/joint_states_raw')],
     )
 
@@ -137,6 +138,7 @@ def generate_launch_description():
         DeclareLaunchArgument("rviz", default_value="false"),
         DeclareLaunchArgument("serial_port", default_value="/dev/ttyAMA0"),
         DeclareLaunchArgument("gui_control", default_value="false"),
+        DeclareLaunchArgument("local_gui", default_value="false"),
         robot_state_publisher,
         quadruped_controller,
         linkage_compensator,
