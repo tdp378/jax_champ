@@ -17,6 +17,10 @@ jax_linkage_compensator:
 
     linkage_ratio: 1.0
 
+    # Set to 1.0 for default correction sign, or -1.0 to invert if
+    # your calf joint convention is opposite (e.g., back = -, forward = +).
+    calf_direction_sign: 1.0
+
     # Must be >= max passive travel (thigh_limit * linkage_ratio)
     max_correction: 0.90
 

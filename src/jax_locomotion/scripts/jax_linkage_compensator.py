@@ -86,6 +86,9 @@ class JaxLinkageCompensator(Node):
 
         self.declare_parameter('linkage_ratio', 1.0)
         self.declare_parameter('max_correction', 0.90)
+        # Multiplies correction sign to match physical calf joint convention.
+        #  1.0: as computed, -1.0: invert correction direction.
+        self.declare_parameter('calf_direction_sign', 1.0)
 
         self.declare_parameter('thigh_backward_limit', 0.90)
         self.declare_parameter('thigh_forward_limit', -0.35)
@@ -103,6 +106,7 @@ class JaxLinkageCompensator(Node):
 
         self.linkage_ratio = float(self.get_parameter('linkage_ratio').value)
         self.max_correction = float(self.get_parameter('max_correction').value)
+        self.calf_direction_sign = float(self.get_parameter('calf_direction_sign').value)
 
         self.thigh_backward_limit = float(self.get_parameter('thigh_backward_limit').value)
         self.thigh_forward_limit = float(self.get_parameter('thigh_forward_limit').value)
@@ -145,6 +149,7 @@ class JaxLinkageCompensator(Node):
             f"  Motor passive zone : [{self.neutral_min:.3f}, {self.neutral_max:.3f}] rad\n"
             f"  Display neutral    : [{self.display_neutral_min:.3f}, {self.display_neutral_max:.3f}] rad\n"
             f"  Linkage ratio      : {self.linkage_ratio:.3f}\n"
+            f"  Calf direction sign: {self.calf_direction_sign:.1f}\n"
             f"  Max correction     : {self.max_correction:.3f} rad\n"
             f"  Thigh limits       : [{self.thigh_forward_limit:.3f}, {self.thigh_backward_limit:.3f}] rad\n"
             f"  Calf limits        : [{self.calf_min_angle:.3f}, {self.calf_max_angle:.3f}] rad\n"
@@ -190,6 +195,7 @@ class JaxLinkageCompensator(Node):
             self.linkage_ratio,
             self.max_correction,
         )
+        correction *= self.calf_direction_sign
 
         if abs(correction) < 1e-9:
             # Hard guarantee: no compensator-induced calf motion in passive zone.
@@ -211,6 +217,7 @@ class JaxLinkageCompensator(Node):
             self.linkage_ratio,
             self.max_correction,
         )
+        correction *= self.calf_direction_sign
         corrected_calf = raw_calf + correction
         min_calf, max_calf = self._compute_calf_limits(thigh_angle, correction)
         corrected_calf = _clamp(corrected_calf, min_calf, max_calf)
