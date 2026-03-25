@@ -104,13 +104,17 @@ class JointRemapper(Node):
         self._last_calf_cmd[leg] = target
         return target
 
-    def apply_linkage_logic(self, thigh_val: float, calf_target: float) -> float:
+    def apply_linkage_logic(self, thigh_val: float, calf_target: float):
+        """Returns (final_calf_pos, correction_active).
+        correction_active is True only when thigh is outside the passive zone.
+        """
         thigh_eff = thigh_val * self.THIGH_DIRECTION_SIGN
 
         # True passive zone behavior: if thigh is within bind range, do not
         # move calf unless calf is explicitly commanded.
         if self.THIGH_FORWARD_BIND <= thigh_eff <= self.THIGH_BACKWARD_BIND:
             final_pos = calf_target
+            correction_active = False
         else:
             if thigh_eff > self.THIGH_BACKWARD_BIND:
                 delta = thigh_eff - self.THIGH_BACKWARD_BIND
@@ -119,9 +123,10 @@ class JointRemapper(Node):
 
             correction = -delta * self.LINKAGE_RATIO * self.CALF_DIRECTION_SIGN
             final_pos = calf_target + correction
+            correction_active = True
 
         final_pos = max(min(final_pos, self.MAX_PHYSICAL), -self.MAX_PHYSICAL)
-        return final_pos
+        return final_pos, correction_active
 
     def js_callback(self, msg: JointState):
         new_js = copy.deepcopy(msg)
@@ -130,8 +135,14 @@ class JointRemapper(Node):
         legs = [('lf', 1, 2), ('rf', 4, 5), ('lh', 7, 8), ('rh', 10, 11)]
         for leg_name, t_idx, c_idx in legs:
             if c_idx < len(pos) and t_idx < len(pos):
-                target = self.apply_linkage_logic(pos[t_idx], pos[c_idx])
-                pos[c_idx] = self._limit_calf_step(leg_name, target)
+                target, correction_active = self.apply_linkage_logic(pos[t_idx], pos[c_idx])
+                # Only slew-limit when a linkage correction is active (thigh outside
+                # passive zone). Direct calf commands in passive zone are unthrottled.
+                if correction_active:
+                    pos[c_idx] = self._limit_calf_step(leg_name, target)
+                else:
+                    self._last_calf_cmd[leg_name] = target
+                    pos[c_idx] = target
 
         new_js.position = pos
         self.js_pub.publish(new_js)
@@ -156,8 +167,12 @@ class JointRemapper(Node):
                     pos[idx[0]] = pos[idx[0]] * -1.0
 
                 if config.get('coupled', False):
-                    target = self.apply_linkage_logic(pos[idx[1]], pos[idx[2]])
-                    pos[idx[2]] = self._limit_calf_step(leg_name, target)
+                    target, correction_active = self.apply_linkage_logic(pos[idx[1]], pos[idx[2]])
+                    if correction_active:
+                        pos[idx[2]] = self._limit_calf_step(leg_name, target)
+                    else:
+                        self._last_calf_cmd[leg_name] = target
+                        pos[idx[2]] = target
 
             new_point.positions = pos
             new_msg.points.append(new_point)
