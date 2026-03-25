@@ -21,6 +21,8 @@ class JointRemapper(Node):
         self.declare_parameter('linkage_ratio', 1.0)
         self.declare_parameter('calf_direction_sign', 1.0)
         self.declare_parameter('max_physical', 0.90)
+        self.declare_parameter('enable_calf_slew_limit', True)
+        self.declare_parameter('calf_max_step_per_update', 0.02)
 
         self.THIGH_FORWARD_BIND = float(self.get_parameter('thigh_forward_bind').value)
         self.THIGH_BACKWARD_BIND = float(self.get_parameter('thigh_backward_bind').value)
@@ -28,6 +30,8 @@ class JointRemapper(Node):
         self.LINKAGE_RATIO = float(self.get_parameter('linkage_ratio').value)
         self.CALF_DIRECTION_SIGN = float(self.get_parameter('calf_direction_sign').value)
         self.MAX_PHYSICAL = float(self.get_parameter('max_physical').value)
+        self.ENABLE_CALF_SLEW_LIMIT = bool(self.get_parameter('enable_calf_slew_limit').value)
+        self.CALF_MAX_STEP = float(self.get_parameter('calf_max_step_per_update').value)
 
         # Joint indices per leg: [hip, thigh, calf]
         self.indices = {
@@ -44,6 +48,9 @@ class JointRemapper(Node):
             'lh': {'flip': False, 'coupled': True},
             'rh': {'flip': False, 'coupled': True},
         }
+
+        # Last commanded calf value per leg for rate limiting.
+        self._last_calf_cmd = {}
 
         # CHAMP/trajectory path
         self.sub = self.create_subscription(
@@ -73,8 +80,29 @@ class JointRemapper(Node):
             f'thigh_sign={self.THIGH_DIRECTION_SIGN:.1f}, '
             f'ratio={self.LINKAGE_RATIO:.3f}, '
             f'calf_sign={self.CALF_DIRECTION_SIGN:.1f}, '
-            f'max_physical={self.MAX_PHYSICAL:.3f})'
+            f'max_physical={self.MAX_PHYSICAL:.3f}, '
+            f'slew_limit={self.ENABLE_CALF_SLEW_LIMIT}, '
+            f'max_step={self.CALF_MAX_STEP:.3f})'
         )
+
+    def _limit_calf_step(self, leg: str, target: float) -> float:
+        if not self.ENABLE_CALF_SLEW_LIMIT:
+            self._last_calf_cmd[leg] = target
+            return target
+
+        prev = self._last_calf_cmd.get(leg)
+        if prev is None:
+            self._last_calf_cmd[leg] = target
+            return target
+
+        delta = target - prev
+        if delta > self.CALF_MAX_STEP:
+            target = prev + self.CALF_MAX_STEP
+        elif delta < -self.CALF_MAX_STEP:
+            target = prev - self.CALF_MAX_STEP
+
+        self._last_calf_cmd[leg] = target
+        return target
 
     def apply_linkage_logic(self, thigh_val: float, calf_target: float) -> float:
         thigh_eff = thigh_val * self.THIGH_DIRECTION_SIGN
@@ -99,10 +127,11 @@ class JointRemapper(Node):
         new_js = copy.deepcopy(msg)
         pos = list(new_js.position)
 
-        legs = [(1, 2), (4, 5), (7, 8), (10, 11)]
-        for t_idx, c_idx in legs:
+        legs = [('lf', 1, 2), ('rf', 4, 5), ('lh', 7, 8), ('rh', 10, 11)]
+        for leg_name, t_idx, c_idx in legs:
             if c_idx < len(pos) and t_idx < len(pos):
-                pos[c_idx] = self.apply_linkage_logic(pos[t_idx], pos[c_idx])
+            target = self.apply_linkage_logic(pos[t_idx], pos[c_idx])
+            pos[c_idx] = self._limit_calf_step(leg_name, target)
 
         new_js.position = pos
         self.js_pub.publish(new_js)
@@ -127,7 +156,8 @@ class JointRemapper(Node):
                     pos[idx[0]] = pos[idx[0]] * -1.0
 
                 if config.get('coupled', False):
-                    pos[idx[2]] = self.apply_linkage_logic(pos[idx[1]], pos[idx[2]])
+                    target = self.apply_linkage_logic(pos[idx[1]], pos[idx[2]])
+                    pos[idx[2]] = self._limit_calf_step(leg_name, target)
 
             new_point.positions = pos
             new_msg.points.append(new_point)
