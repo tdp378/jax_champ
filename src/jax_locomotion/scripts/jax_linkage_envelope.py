@@ -83,7 +83,7 @@ class JaxLinkageEnvelopeNode(Node):
 
         # Normal thigh thresholds for follow
         self.declare_parameter('rear_follow_start_rad', 0.90)
-        self.declare_parameter('front_follow_start_rad', -0.70)
+        self.declare_parameter('front_follow_start_rad', -0.50)
 
         # Extra calf follow per radian of thigh motion once triggered
         self.declare_parameter('open_follow_gain', 1.0)
