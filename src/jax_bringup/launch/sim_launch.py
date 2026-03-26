@@ -130,8 +130,8 @@ def generate_launch_description():
 
     leg_safety = Node(
         package="jax_locomotion",
-        executable="jax_leg_safety.py",
-        name="jax_leg_safety_node",
+        executable="jax_linkage_envelope.py",
+        name="jax_linkage_envelope_node",
         output="screen",
         parameters=[{"use_sim_time": True}],
     )

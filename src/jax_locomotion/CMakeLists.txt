@@ -17,7 +17,7 @@ install(PROGRAMS
   scripts/jax_imu_leg_height_stabilizer.py
   scripts/champ_leg_height_wrapper.py
   scripts/jax_joint_state_to_trajectory.py
-  scripts/jax_leg_safety.py
+  scripts/jax_linkage_envelope.py
   DESTINATION lib/${PROJECT_NAME}
 )
 

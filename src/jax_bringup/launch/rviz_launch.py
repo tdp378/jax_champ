@@ -42,7 +42,7 @@ def generate_launch_description():
     )
 
     # When safety processing is enabled, publish sliders to /joint_states_raw and
-    # let jax_leg_safety republish /joint_states.
+    # let jax_linkage_envelope republish /joint_states.
     joint_state_publisher_gui_raw = Node(
         package="joint_state_publisher_gui",
         executable="joint_state_publisher_gui",
@@ -72,8 +72,8 @@ def generate_launch_description():
     # Subscribes /joint_states_raw, clamps into safety envelope, publishes /joint_states.
     linkage_compensator = Node(
         package="jax_locomotion",
-        executable="jax_leg_safety.py",
-        name="jax_leg_safety_node",
+        executable="jax_linkage_envelope.py",
+        name="jax_linkage_envelope_node",
         output="screen",
         parameters=[{"use_sim_time": use_sim_time}],
         condition=IfCondition(enable_compensator),

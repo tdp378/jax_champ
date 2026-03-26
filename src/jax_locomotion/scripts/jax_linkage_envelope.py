@@ -9,10 +9,10 @@ from sensor_msgs.msg import JointState
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 
 
-class JaxLegSafetyNode(Node):
+class JaxLinkageEnvelopeNode(Node):
 
     def __init__(self) -> None:
-        super().__init__('jax_leg_safety_node')
+        super().__init__('jax_linkage_envelope_node')
 
         # -----------------------------
         # Topics
@@ -280,7 +280,7 @@ class JaxLegSafetyNode(Node):
 
 def main():
     rclpy.init()
-    node = JaxLegSafetyNode()
+    node = JaxLinkageEnvelopeNode()
     rclpy.spin(node)
     node.destroy_node()
     rclpy.shutdown()
