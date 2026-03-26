@@ -260,7 +260,7 @@ class JaxLinkageEnvelopeNode(Node):
             passive_neutral = self.interpolate_passive_rad(self.neutral_thigh_rad)
             passive_delta = passive_here - passive_neutral
 
-        requested_calf = calf_eff + passive_delta
+        requested_calf = calf_eff # + passive_delta
 
         # Edge-triggered follow
         extra_follow = 0.0
