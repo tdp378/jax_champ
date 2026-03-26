@@ -27,13 +27,14 @@ def generate_launch_description():
     jax_description = get_package_share_directory("jax_description")
     jax_locomotion = get_package_share_directory("jax_locomotion")
     jax_bringup = get_package_share_directory("jax_bringup")
+    jax_hardware = get_package_share_directory("jax_hardware")
 
     robot_xacro = os.path.join(jax_description, "urdf", "jax_robot.xacro")
     joints_config = os.path.join(jax_locomotion, "config", "joints", "joints.yaml")
     links_config = os.path.join(jax_locomotion, "config", "links", "links.yaml")
     gait_config = os.path.join(jax_locomotion, "config", "gait", "gait.yaml")
     motion_config = os.path.join(jax_locomotion, "config", "motion", "motion.yaml")
-    joint_calibration_config = os.path.join(jax_bringup, "config", "joint_calibration.yaml")
+    joint_calibration_config = os.path.join(jax_hardware, "config", "joint_calibration.yaml")
     rviz_config = os.path.join(jax_bringup, "rviz", "rviz.rviz")
 
     max_vx, max_vy, max_wz = load_motion_limits(motion_config)
@@ -74,10 +75,10 @@ def generate_launch_description():
         ],
     )
 
-    joint_remapper = Node(
-        package="jax_bringup",
-        executable="joint_remapper.py",
-        name="joint_remapper",
+    leg_safety = Node(
+        package="jax_locomotion",
+        executable="jax_leg_safety.py",
+        name="jax_leg_safety_node",
         output="screen",
         remappings=[
             ('/joint_group_effort_controller/joint_trajectory',
@@ -86,7 +87,7 @@ def generate_launch_description():
     )
 
     serial_bridge = Node(
-        package="jax_bringup",
+        package="jax_hardware",
         executable="jax_serial_bridge.py",
         name="jax_serial_bridge",
         output="screen",
@@ -139,7 +140,7 @@ def generate_launch_description():
         DeclareLaunchArgument("local_gui", default_value="false"),
         robot_state_publisher,
         quadruped_controller,
-        joint_remapper,
+        leg_safety,
         joint_state_publisher_gui,
         joint_state_to_trajectory,
         serial_bridge,

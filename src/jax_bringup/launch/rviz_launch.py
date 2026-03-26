@@ -1,10 +1,7 @@
-import os
-
-from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
 from launch.conditions import IfCondition
-from launch.substitutions import Command, LaunchConfiguration, PathJoinSubstitution
+from launch.substitutions import Command, LaunchConfiguration, PathJoinSubstitution, PythonExpression
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 
@@ -12,11 +9,6 @@ from launch_ros.substitutions import FindPackageShare
 def generate_launch_description():
     description_pkg = FindPackageShare("jax_description")
     sim_pkg = FindPackageShare("jax_bringup")
-
-    jax_locomotion = get_package_share_directory("jax_locomotion")
-    linkage_compensator_config = os.path.join(
-        jax_locomotion, "config", "linkage_compensator.yaml"
-    )
 
     use_sim_time = LaunchConfiguration("use_sim_time")
     gui = LaunchConfiguration("gui")
@@ -49,25 +41,41 @@ def generate_launch_description():
         ],
     )
 
-    joint_state_publisher_gui = Node(
+    # When safety processing is enabled, publish sliders to /joint_states_raw and
+    # let jax_leg_safety republish /joint_states.
+    joint_state_publisher_gui_raw = Node(
         package="joint_state_publisher_gui",
         executable="joint_state_publisher_gui",
-        name="joint_state_publisher_gui",
+        name="joint_state_publisher_gui_raw",
         output="screen",
         parameters=[{"use_sim_time": use_sim_time}],
         remappings=[('/joint_states', '/joint_states_raw')],
-        condition=IfCondition(gui),
+        condition=IfCondition(PythonExpression([
+            "'", gui, "' == 'true' and '", enable_compensator, "' == 'true'"
+        ])),
     )
 
-    # Sits between the GUI sliders and robot_state_publisher.
-    # Subscribes /joint_states_raw, applies calf compensation, publishes /joint_states
-    # so RViz shows the geometrically-correct parallel-linkage calf motion.
+    # When safety processing is disabled, publish directly to /joint_states so
+    # robot_state_publisher still receives updates and TF is available.
+    joint_state_publisher_gui_direct = Node(
+        package="joint_state_publisher_gui",
+        executable="joint_state_publisher_gui",
+        name="joint_state_publisher_gui_direct",
+        output="screen",
+        parameters=[{"use_sim_time": use_sim_time}],
+        condition=IfCondition(PythonExpression([
+            "'", gui, "' == 'true' and '", enable_compensator, "' != 'true'"
+        ])),
+    )
+
+    # Sits between GUI sliders and robot_state_publisher when enabled.
+    # Subscribes /joint_states_raw, clamps into safety envelope, publishes /joint_states.
     linkage_compensator = Node(
         package="jax_locomotion",
-        executable="jax_linkage_compensator.py",
-        name="jax_linkage_compensator",
+        executable="jax_leg_safety.py",
+        name="jax_leg_safety_node",
         output="screen",
-        parameters=[linkage_compensator_config, {"use_sim_time": use_sim_time}],
+        parameters=[{"use_sim_time": use_sim_time}],
         condition=IfCondition(enable_compensator),
     )
 
@@ -88,7 +96,8 @@ def generate_launch_description():
         DeclareLaunchArgument("enable_compensator", default_value="true"),
 
         robot_state_publisher,
-        joint_state_publisher_gui,
+        joint_state_publisher_gui_raw,
+        joint_state_publisher_gui_direct,
         linkage_compensator,
         rviz2,
     ])

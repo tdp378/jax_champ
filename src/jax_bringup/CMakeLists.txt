@@ -10,11 +10,6 @@ install(DIRECTORY
   DESTINATION share/${PROJECT_NAME}
 )
 
-install(PROGRAMS
-  scripts/jax_display_node.py
-  scripts/jax_serial_bridge.py
-  scripts/joint_remapper.py
-  DESTINATION lib/${PROJECT_NAME}
-)
+
 
 ament_package()

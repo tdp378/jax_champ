@@ -128,10 +128,10 @@ def generate_launch_description():
         ],
     )
 
-    joint_remapper = Node(
-        package="jax_bringup",
-        executable="joint_remapper.py",
-        name="joint_remapper",
+    leg_safety = Node(
+        package="jax_locomotion",
+        executable="jax_leg_safety.py",
+        name="jax_leg_safety_node",
         output="screen",
         parameters=[{"use_sim_time": True}],
     )
@@ -202,7 +202,7 @@ def generate_launch_description():
             spawn_robot,
             bridge,
             quadruped_controller,
-            joint_remapper,
+            leg_safety,
             joint_state_publisher_gui,
             joint_state_to_trajectory,
             joint_state_spawner,
