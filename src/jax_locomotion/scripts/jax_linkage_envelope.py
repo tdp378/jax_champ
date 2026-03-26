@@ -260,7 +260,7 @@ class JaxLinkageEnvelopeNode(Node):
             passive_neutral = self.interpolate_passive_rad(self.neutral_thigh_rad)
             passive_delta = passive_here - passive_neutral
 
-        requested_calf = calf_eff # + passive_delta
+        requested_calf = calf_eff # + passive_delta # - This is to visualize in sim
 
         # Edge-triggered follow
         extra_follow = 0.0
@@ -287,12 +287,12 @@ class JaxLinkageEnvelopeNode(Node):
                     # Backward / rearward motion: thigh increasing
                     # If RAW calf command is already near closed edge, add more closing
                     if dthigh > 0.0 and near_closed:
-                        extra_follow = -dthigh * self.closed_follow_gain
+                        extra_follow = dthigh * self.closed_follow_gain
 
                     # Forward motion: thigh decreasing
                     # If RAW calf command is already near open edge, add more opening
                     elif dthigh < 0.0 and near_open:
-                        extra_follow = -dthigh * self.open_follow_gain
+                        extra_follow = dthigh * self.open_follow_gain
 
                     requested_calf = requested_calf + extra_follow
 
