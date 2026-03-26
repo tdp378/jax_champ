@@ -46,7 +46,7 @@ class JaxLinkageEnvelopeNode(Node):
         # Direction signs
         # -----------------------------
         self.declare_parameter('thigh_direction_sign', 1.0)
-        self.declare_parameter('calf_direction_sign', 1.0)
+        self.declare_parameter('calf_direction_sign', -1.0)
 
         self.thigh_direction_sign = float(self.get_parameter('thigh_direction_sign').value)
         self.calf_direction_sign = float(self.get_parameter('calf_direction_sign').value)
