@@ -75,15 +75,15 @@ class JaxLinkageEnvelopeNode(Node):
         self.declare_parameter('enable_edge_follow', True)
 
         # How close to the envelope edge before normal edge state is considered
-        self.declare_parameter('open_follow_trigger_fraction', 0.10)
-        self.declare_parameter('closed_follow_trigger_fraction', 0.10)
+        self.declare_parameter('open_follow_trigger_fraction', 0.05)
+        self.declare_parameter('closed_follow_trigger_fraction', 0.05)
 
         # "Really at the edge" override for early follow before the thigh threshold
         self.declare_parameter('early_follow_edge_fraction', 0.02)
 
         # Normal thigh thresholds for follow
         self.declare_parameter('rear_follow_start_rad', 0.90)
-        self.declare_parameter('front_follow_start_rad', -0.90)
+        self.declare_parameter('front_follow_start_rad', -0.70)
 
         # Extra calf follow per radian of thigh motion once triggered
         self.declare_parameter('open_follow_gain', 1.0)
