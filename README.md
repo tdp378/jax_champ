@@ -144,11 +144,4 @@ If your shell aliases are configured, these shortcuts may be available:
 - Hardware-specific scripts and calibration live in jax_hardware.
 - jax_bringup remains the central launch orchestration package.
 
-## Next README Improvements (Optional)
 
-If you want, next pass can add:
-
-- Full topic map (publishers/subscribers per node)
-- Parameter reference tables for each script
-- Hardware wiring and startup checklist
-- Troubleshooting guide for launch/runtime issues
