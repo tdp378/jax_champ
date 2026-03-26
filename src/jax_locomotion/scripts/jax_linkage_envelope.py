@@ -265,10 +265,11 @@ class JaxLinkageEnvelopeNode(Node):
         # Edge-triggered follow
         extra_follow = 0.0
 
-        norm_pos = self.envelope_norm(requested_calf, low_min, low_max)
+        # Trigger follow based on RAW calf command, not passive-shifted calf
+        raw_norm_pos = self.envelope_norm(calf_eff, low_min, low_max)
 
-        near_open = norm_pos >= (1.0 - self.open_follow_trigger_fraction)
-        near_closed = norm_pos <= self.closed_follow_trigger_fraction
+        near_open = raw_norm_pos >= (1.0 - self.open_follow_trigger_fraction)
+        near_closed = raw_norm_pos <= self.closed_follow_trigger_fraction
 
         state_reset = False
         dthigh = 0.0
@@ -284,12 +285,12 @@ class JaxLinkageEnvelopeNode(Node):
                     state_reset = True
                 else:
                     # Backward / rearward motion: thigh increasing
-                    # If already near closed edge, add more closing
+                    # If RAW calf command is already near closed edge, add more closing
                     if dthigh > 0.0 and near_closed:
                         extra_follow = -dthigh * self.closed_follow_gain
 
                     # Forward motion: thigh decreasing
-                    # If already near open edge, add more opening
+                    # If RAW calf command is already near open edge, add more opening
                     elif dthigh < 0.0 and near_open:
                         extra_follow = -dthigh * self.open_follow_gain
 
@@ -313,7 +314,7 @@ class JaxLinkageEnvelopeNode(Node):
             safe_calf_ros,
             (low_min, low_max),
             passive_delta,
-            norm_pos,
+            raw_norm_pos,
             near_open,
             near_closed,
             dthigh,
@@ -344,7 +345,7 @@ class JaxLinkageEnvelopeNode(Node):
                 safe_c,
                 lims,
                 passive,
-                norm_pos,
+                raw_norm_pos,
                 near_open,
                 near_closed,
                 dthigh,
@@ -361,7 +362,7 @@ class JaxLinkageEnvelopeNode(Node):
                 self.get_logger().info(
                     f'{leg}: thigh={thigh:.3f}, calf_in={calf:.3f}, '
                     f'passive={passive:.3f}, '
-                    f'norm={norm_pos:.3f}, '
+                    f'raw_norm={raw_norm_pos:.3f}, '
                     f'near_open={near_open}, near_closed={near_closed}, '
                     f'dthigh={dthigh:.3f}, extra_follow={extra_follow:.3f}, '
                     f'reset={state_reset}, '
@@ -401,7 +402,18 @@ class JaxLinkageEnvelopeNode(Node):
                 thigh = new.positions[t_i]
                 calf = new.positions[c_i]
 
-                safe_t, safe_c, _, _, _, _, _, _, _, _ = self.apply_leg_safety(leg, thigh, calf)
+                (
+                    safe_t,
+                    safe_c,
+                    _,
+                    _,
+                    _,
+                    _,
+                    _,
+                    _,
+                    _,
+                    _,
+                ) = self.apply_leg_safety(leg, thigh, calf)
 
                 new.positions[t_i] = safe_t
                 new.positions[c_i] = safe_c
