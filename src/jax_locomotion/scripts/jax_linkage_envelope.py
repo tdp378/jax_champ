@@ -74,10 +74,16 @@ class JaxLinkageEnvelopeNode(Node):
         # -----------------------------
         self.declare_parameter('enable_edge_follow', True)
 
-        # How close to the envelope edge before follow activates
-        # 0.10 = within 10% of the edge
+        # How close to the envelope edge before normal edge state is considered
         self.declare_parameter('open_follow_trigger_fraction', 0.10)
         self.declare_parameter('closed_follow_trigger_fraction', 0.10)
+
+        # "Really at the edge" override for early follow before the thigh threshold
+        self.declare_parameter('early_follow_edge_fraction', 0.02)
+
+        # Normal thigh thresholds for follow
+        self.declare_parameter('rear_follow_start_rad', 0.90)
+        self.declare_parameter('front_follow_start_rad', -0.90)
 
         # Extra calf follow per radian of thigh motion once triggered
         self.declare_parameter('open_follow_gain', 1.0)
@@ -90,6 +96,9 @@ class JaxLinkageEnvelopeNode(Node):
         self.enable_edge_follow = bool(self.get_parameter('enable_edge_follow').value)
         self.open_follow_trigger_fraction = float(self.get_parameter('open_follow_trigger_fraction').value)
         self.closed_follow_trigger_fraction = float(self.get_parameter('closed_follow_trigger_fraction').value)
+        self.early_follow_edge_fraction = float(self.get_parameter('early_follow_edge_fraction').value)
+        self.rear_follow_start_rad = float(self.get_parameter('rear_follow_start_rad').value)
+        self.front_follow_start_rad = float(self.get_parameter('front_follow_start_rad').value)
         self.open_follow_gain = float(self.get_parameter('open_follow_gain').value)
         self.closed_follow_gain = float(self.get_parameter('closed_follow_gain').value)
         self.reset_follow_on_large_jump = bool(self.get_parameter('reset_follow_on_large_jump').value)
@@ -132,7 +141,8 @@ class JaxLinkageEnvelopeNode(Node):
         # PASSIVE CURVE (RADIANS)
         # (upper_rad, passive_lower_rad)
         #
-        # Replace this with your live tuned table if different.
+        # This is for debug / understanding the linkage.
+        # It is NOT injected into the calf motor command.
         # ============================================================
         self.passive_table_rad: List[Tuple[float, float]] = [
             (-1.40,  0.733),
@@ -253,23 +263,28 @@ class JaxLinkageEnvelopeNode(Node):
         safe_thigh, low_min, low_max = self.interpolate_limits_rad(thigh_eff)
         low_min, low_max = self.apply_safety_margins_rad(low_min, low_max)
 
-        # Passive linkage movement always applies
+        # Passive linkage movement for debug / visibility only
         passive_delta = 0.0
         if self.enable_passive_calf:
             passive_here = self.interpolate_passive_rad(safe_thigh)
             passive_neutral = self.interpolate_passive_rad(self.neutral_thigh_rad)
             passive_delta = passive_here - passive_neutral
 
-        requested_calf = calf_eff # + passive_delta # - This is to visualize in sim
+        # IMPORTANT:
+        # Keep calf motor fixed in passive zone.
+        requested_calf = calf_eff
 
         # Edge-triggered follow
         extra_follow = 0.0
 
-        # Trigger follow based on RAW calf command, not passive-shifted calf
+        # Trigger follow from RAW calf motor command
         raw_norm_pos = self.envelope_norm(calf_eff, low_min, low_max)
 
         near_open = raw_norm_pos >= (1.0 - self.open_follow_trigger_fraction)
         near_closed = raw_norm_pos <= self.closed_follow_trigger_fraction
+
+        really_near_open = raw_norm_pos >= (1.0 - self.early_follow_edge_fraction)
+        really_near_closed = raw_norm_pos <= self.early_follow_edge_fraction
 
         state_reset = False
         dthigh = 0.0
@@ -284,14 +299,26 @@ class JaxLinkageEnvelopeNode(Node):
                 if self.reset_follow_on_large_jump and abs(dthigh) > self.large_jump_threshold_rad:
                     state_reset = True
                 else:
-                    # Backward / rearward motion: thigh increasing
-                    # If RAW calf command is already near closed edge, add more closing
-                    if dthigh > 0.0 and near_closed:
+                    rear_follow_allowed = (
+                        safe_thigh >= self.rear_follow_start_rad
+                        or really_near_closed
+                    )
+
+                    front_follow_allowed = (
+                        safe_thigh <= self.front_follow_start_rad
+                        or really_near_open
+                    )
+
+                    # Rearward motion: thigh increasing
+                    # Allow follow either after normal rear threshold,
+                    # or earlier if calf is already basically at closed edge.
+                    if dthigh > 0.0 and near_closed and rear_follow_allowed:
                         extra_follow = dthigh * self.closed_follow_gain
 
                     # Forward motion: thigh decreasing
-                    # If RAW calf command is already near open edge, add more opening
-                    elif dthigh < 0.0 and near_open:
+                    # Allow follow either after normal front threshold,
+                    # or earlier if calf is already basically at open edge.
+                    elif dthigh < 0.0 and near_open and front_follow_allowed:
                         extra_follow = dthigh * self.open_follow_gain
 
                     requested_calf = requested_calf + extra_follow
@@ -317,6 +344,8 @@ class JaxLinkageEnvelopeNode(Node):
             raw_norm_pos,
             near_open,
             near_closed,
+            really_near_open,
+            really_near_closed,
             dthigh,
             extra_follow,
             state_reset,
@@ -348,6 +377,8 @@ class JaxLinkageEnvelopeNode(Node):
                 raw_norm_pos,
                 near_open,
                 near_closed,
+                really_near_open,
+                really_near_closed,
                 dthigh,
                 extra_follow,
                 state_reset,
@@ -364,6 +395,7 @@ class JaxLinkageEnvelopeNode(Node):
                     f'passive={passive:.3f}, '
                     f'raw_norm={raw_norm_pos:.3f}, '
                     f'near_open={near_open}, near_closed={near_closed}, '
+                    f'really_near_open={really_near_open}, really_near_closed={really_near_closed}, '
                     f'dthigh={dthigh:.3f}, extra_follow={extra_follow:.3f}, '
                     f'reset={state_reset}, '
                     f'allowed=[{lims[0]:.3f},{lims[1]:.3f}], '
@@ -405,6 +437,8 @@ class JaxLinkageEnvelopeNode(Node):
                 (
                     safe_t,
                     safe_c,
+                    _,
+                    _,
                     _,
                     _,
                     _,
