@@ -5,4 +5,4 @@
     # ARDUINO_ORDER:
     # [rh_hip, rh_upper, rh_lower, lh_hip, lh_upper, lh_lower,
     #  lf_hip, lf_upper, lf_lower, rf_hip, rf_upper, rf_lower]
-    joint_offsets: [0.03, 0.0, 0.0, 0.08, 0.0, 0.0, 0.08, 0.0, 0.0, -0.08, 0.0, 0.0]
+    joint_offsets: [0.08, 0.0, 0.0, 0.03, 0.0, 0.0, 0.03, -0.06, 0.0, -0.05, 0.0, 0.0]
