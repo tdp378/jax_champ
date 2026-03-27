@@ -63,17 +63,28 @@ class WaveshareDisplayBackend:
 
         # The UI renderer already outputs 320x172 landscape.
         # Initialize the panel to match that orientation directly.
+        # ST7789 native RAM is 320x240; for a 172-tall panel the vertical
+        # offset centres the visible window: (240 - 172) / 2 = 34.
+        self.v_offset = 34
         self.device = st7789(
             serial,
             width=320,
             height=172,
-            rotate=0
+            rotate=0,
         )
 
     def show(self, img_bgr: np.ndarray):
         img_rgb = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2RGB)
         pil_img = Image.fromarray(img_rgb)
-        self.device.display(pil_img)
+
+        # Apply vertical offset: set_window takes (x1, y1, x2, y2)
+        # where x2/y2 are end coordinates (exclusive after -1 inside).
+        self.device.set_window(
+            0, self.v_offset,
+            self.device._w, self.v_offset + self.device._h,
+        )
+        buf = list(pil_img.convert("RGB").tobytes())
+        self.device.data(buf)
 
     def close(self):
         pass

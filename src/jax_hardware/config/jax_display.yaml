@@ -1,0 +1,17 @@
+jax_display_node:
+  ros__parameters:
+    mode_topic: "/jax_mode"
+    imu_topic: "/imu/data"
+    sim: false
+    demo_battery_drain: false
+    battery_voltage_full: 16.8
+    battery_voltage_empty: 13.2
+    refresh_hz: 10.0
+    robot_name: "JAX"
+    boot_duration: 2.5
+    mode_flash_duration: 1.2
+    use_lcd: true
+    spi_port: 0
+    spi_device: 0
+    dc_pin: 25
+    rst_pin: 27

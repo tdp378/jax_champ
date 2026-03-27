@@ -59,8 +59,8 @@
   <xacro:property name="hip_velocity_max" value="30.1"/>
   <xacro:property name="hip_torque_max" value="23.7"/>
 
-  <xacro:property name="thigh_position_max" value="1.2"/>
-  <xacro:property name="thigh_position_min" value="-1.396263"/>
+  <xacro:property name="thigh_position_max" value="1.3"/>
+  <xacro:property name="thigh_position_min" value="-1.3"/>
   <xacro:property name="thigh_velocity_max" value="30.1"/>
   <xacro:property name="thigh_torque_max" value="23.7"/>
 

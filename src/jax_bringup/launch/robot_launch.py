@@ -41,6 +41,7 @@ def generate_launch_description():
         "jax_simple_calf_follow.yaml",
     )
     joint_calibration_config = os.path.join(jax_hardware, "config", "joint_calibration.yaml")
+    display_config = os.path.join(jax_hardware, "config", "jax_display.yaml")
     rviz_config = os.path.join(jax_bringup, "rviz", "rviz.rviz")
 
     max_vx, max_vy, max_wz = load_motion_limits(motion_config)
@@ -141,6 +142,14 @@ def generate_launch_description():
         condition=IfCondition(use_rviz),
     )
 
+    display = Node(
+        package="jax_hardware",
+        executable="jax_display_node.py",
+        name="jax_display_node",
+        output="screen",
+        parameters=[display_config],
+    )
+
     return LaunchDescription([
         DeclareLaunchArgument("rviz", default_value="false"),
         DeclareLaunchArgument("serial_port", default_value="/dev/ttyAMA0"),
@@ -153,5 +162,6 @@ def generate_launch_description():
         joint_state_to_trajectory,
         serial_bridge,
         velocity_smoother,
+        display,
         rviz,
     ])
