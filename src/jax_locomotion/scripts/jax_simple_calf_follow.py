@@ -20,11 +20,29 @@ class JaxSimpleCalfFollowNode(Node):
         self.calf_direction_sign = float(
             self.declare_parameter('calf_direction_sign', -1.0).value
         )
-        self.follow_gain = float(
-            self.declare_parameter('follow_gain', 1.0).value
+        self.forward_gain = float(
+            self.declare_parameter('forward_gain', 1.0).value
+        )
+        self.backward_gain = float(
+            self.declare_parameter('backward_gain', 1.0).value
         )
         self.debug_logs = bool(
             self.declare_parameter('debug_logs', False).value
+        )
+        self.pos_follow_start = float(
+            self.declare_parameter('positive_follow_start_rad', 0.0).value
+        )
+        self.neg_follow_start = float(
+            self.declare_parameter('negative_follow_start_rad', 0.0).value
+        )
+        self.calf_thresh_scale = float(
+            self.declare_parameter('calf_position_threshold_scale', 0.0).value
+        )
+        self.forward_taper = float(
+            self.declare_parameter('forward_gain_taper', 0.0).value
+        )
+        self.backward_taper = float(
+            self.declare_parameter('backward_gain_taper', 0.0).value
         )
 
         self.indices = {
@@ -66,29 +84,58 @@ class JaxSimpleCalfFollowNode(Node):
             'Jax simple calf follow node started '
             f'(thigh_sign={self.thigh_direction_sign}, '
             f'calf_sign={self.calf_direction_sign}, '
-            f'follow_gain={self.follow_gain})'
+            f'fwd_gain={self.forward_gain}, bwd_gain={self.backward_gain}, '
+            f'pos_start={self.pos_follow_start}, '
+            f'neg_start={self.neg_follow_start}, '
+            f'calf_thresh_scale={self.calf_thresh_scale}, '
+            f'fwd_taper={self.forward_taper}, bwd_taper={self.backward_taper})'
         )
 
     def apply_leg_follow(self, leg, thigh, calf):
         thigh_eff = thigh * self.thigh_direction_sign
         calf_eff = calf * self.calf_direction_sign
 
-        prev = self.prev_state.get(leg)
-        if prev is None:
-            out_calf_eff = calf_eff
-        else:
-            dthigh_eff = thigh_eff - prev['thigh_eff']
-            out_calf_eff = prev['calf_eff'] - (dthigh_eff * self.follow_gain)
-            if self.debug_logs:
-                self.get_logger().info(
-                    f'follow[{leg}] dthigh_eff={dthigh_eff:.4f} '
-                    f'calf_eff={out_calf_eff:.4f}'
-                )
+        # Record thigh origin on first call per leg
+        if leg not in self.prev_state:
+            self.prev_state[leg] = {'thigh_eff_origin': thigh_eff}
 
-        self.prev_state[leg] = {
-            'thigh_eff': thigh_eff,
-            'calf_eff': out_calf_eff,
-        }
+        origin = self.prev_state[leg]['thigh_eff_origin']
+        thigh_travel = thigh_eff - origin
+
+        # Use commanded calf position for threshold scaling and gain taper
+        calf_offset = abs(calf)
+        eff_pos_start = max(0.0, self.pos_follow_start - self.calf_thresh_scale * calf_offset)
+        eff_neg_start = max(0.0, self.neg_follow_start - self.calf_thresh_scale * calf_offset)
+
+        # Dead zone
+        if thigh_travel > eff_pos_start:
+            active_travel = thigh_travel - eff_pos_start
+        elif thigh_travel < -eff_neg_start:
+            active_travel = thigh_travel + eff_neg_start
+        else:
+            active_travel = 0.0
+
+        # Select gain and taper based on thigh direction
+        # Use signed calf: backward taper scales with -calf (closed=more, open=less)
+        #                   forward taper scales with +calf (open=more, closed=less)
+        if active_travel > 0.0:
+            eff_gain = self.backward_gain * max(0.0, 1.0 + self.backward_taper * (-calf))
+        elif active_travel < 0.0:
+            eff_gain = self.forward_gain * max(0.0, 1.0 + self.forward_taper * calf)
+        else:
+            eff_gain = 0.0
+
+        # Direct correction: output = input + follow offset (no accumulation)
+        correction_eff = -active_travel * eff_gain
+        out_calf_eff = calf_eff + correction_eff
+
+        if self.debug_logs:
+            self.get_logger().info(
+                f'follow[{leg}] travel={thigh_travel:.4f} '
+                f'eff_pos={eff_pos_start:.3f} eff_neg={eff_neg_start:.3f} '
+                f'active={active_travel:.4f} correction={correction_eff:.4f} '
+                f'eff_gain={eff_gain:.3f} calf_out={out_calf_eff:.4f}'
+            )
 
         return thigh, out_calf_eff / self.calf_direction_sign
 

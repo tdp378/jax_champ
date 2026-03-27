@@ -18,6 +18,7 @@ install(PROGRAMS
   scripts/champ_leg_height_wrapper.py
   scripts/jax_joint_state_to_trajectory.py
   scripts/jax_linkage_envelope.py
+  scripts/jax_simple_calf_follow.py
   DESTINATION lib/${PROJECT_NAME}
 )
 

@@ -40,6 +40,12 @@ def generate_launch_description():
     links_config = os.path.join(jax_locomotion, "config", "links", "links.yaml")
     gait_config = os.path.join(jax_locomotion, "config", "gait", "gait.yaml")
     motion_config = os.path.join(jax_locomotion, "config", "motion", "motion.yaml")
+    simple_calf_follow_config = os.path.join(
+        jax_locomotion,
+        "config",
+        "follow",
+        "jax_simple_calf_follow.yaml",
+    )
     world = os.path.join(jax_description, "worlds", "default.sdf")
     rviz_config = os.path.join(jax_bringup, "rviz", "rviz.rviz")
 
@@ -130,10 +136,10 @@ def generate_launch_description():
 
     leg_safety = Node(
         package="jax_locomotion",
-        executable="jax_linkage_envelope.py",
-        name="jax_linkage_envelope_node",
+        executable="jax_simple_calf_follow.py",
+        name="jax_simple_calf_follow_node",
         output="screen",
-        parameters=[{"use_sim_time": True}],
+        parameters=[simple_calf_follow_config, {"use_sim_time": True}],
     )
 
     joint_state_publisher_gui = Node(
@@ -152,10 +158,9 @@ def generate_launch_description():
         name="jax_joint_state_to_trajectory",
         output="screen",
         condition=IfCondition(gui_control),
-        parameters=[{"use_sim_time": True}],
-        remappings=[
-            ('/jax/joint_commands/linkage_corrected',
-             '/joint_group_effort_controller/joint_trajectory'),
+        parameters=[
+            {"use_sim_time": True},
+            {"output_topic": "/jax/walk_joint_trajectory_raw"},
         ],
     )
 

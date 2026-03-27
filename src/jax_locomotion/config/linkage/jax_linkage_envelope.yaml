@@ -1,0 +1,39 @@
+jax_linkage_envelope_node:
+  ros__parameters:
+    # Joint sign convention
+    thigh_direction_sign: 1.0
+    calf_direction_sign: -1.0
+
+    # Master follow direction.
+    # 1.0 => calf follows opposite of thigh motion (default for this build)
+    # -1.0 => invert to same-direction follow
+    follow_direction: 1.0
+
+    # Optional per-edge multipliers (normally keep at 1.0)
+    open_follow_sign: 1.0
+    closed_follow_sign: 1.0
+
+    # Follow gains
+    open_follow_gain: 1.0
+    closed_follow_gain: 1.0
+
+    # Follow start thresholds
+    rear_follow_start_rad: 0.90
+    front_follow_start_rad: -0.20
+
+    # Envelope edge trigger fractions
+    open_follow_trigger_fraction: 0.10
+    closed_follow_trigger_fraction: 0.10
+    early_follow_edge_fraction: 0.02
+
+    # Reserved safety margins
+    min_margin_rad: 0.0
+    max_margin_rad: 0.0
+
+    # Passive behavior
+    enable_passive_calf: true
+    neutral_thigh_rad: 0.0
+
+    # Debug
+    debug_logs: false
+    warn_on_clamp: true

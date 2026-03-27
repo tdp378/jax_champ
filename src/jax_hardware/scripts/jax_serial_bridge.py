@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import rclpy
 from rclpy.node import Node
+import signal
 import serial
 import time
 from trajectory_msgs.msg import JointTrajectory
@@ -48,6 +49,7 @@ class JaxSerialBridge(Node):
         self.add_on_set_parameters_callback(self.on_set_parameters)
 
         self.armed = False
+        self.shutting_down = False
         self.ser = None
         self.target_values = [0.0] * len(ARDUINO_ORDER)
         self.filtered_values = [0.0] * len(ARDUINO_ORDER)
@@ -77,7 +79,7 @@ class JaxSerialBridge(Node):
         self.create_timer(0.1, self.read_feedback)
 
     def traj_callback(self, msg):
-        if not msg.points or self.ser is None:
+        if self.shutting_down or not msg.points or self.ser is None:
             return
 
         # Send WAKE on first command to activate servos/NeoPixels
@@ -98,7 +100,7 @@ class JaxSerialBridge(Node):
         self.target_values = values
 
     def output_loop(self):
-        if self.ser is None:
+        if self.shutting_down or self.ser is None:
             return
 
         values = list(self.target_values)
@@ -186,10 +188,23 @@ class JaxSerialBridge(Node):
         except Exception:
             pass
 
-    def destroy_node(self):
+    def begin_shutdown(self):
+        """Immediately stop processing and tell servos to sleep."""
+        if self.shutting_down:
+            return
+        self.shutting_down = True
+        self.get_logger().info('Shutdown requested — sending SLEEP to servos')
         if self.ser and self.ser.is_open:
             try:
                 self.ser.write(b'SLEEP\n')
+                self.ser.flush()
+            except Exception:
+                pass
+
+    def destroy_node(self):
+        self.begin_shutdown()
+        if self.ser and self.ser.is_open:
+            try:
                 self.ser.close()
             except Exception:
                 pass
@@ -199,6 +214,14 @@ class JaxSerialBridge(Node):
 def main(args=None):
     rclpy.init(args=args)
     node = JaxSerialBridge()
+
+    # Send SLEEP immediately on SIGINT, before ROS teardown starts
+    def _sigint_handler(sig, frame):
+        node.begin_shutdown()
+        raise KeyboardInterrupt
+
+    signal.signal(signal.SIGINT, _sigint_handler)
+
     try:
         rclpy.spin(node)
     except KeyboardInterrupt:

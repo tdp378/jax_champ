@@ -1,0 +1,12 @@
+jax_simple_calf_follow_node:
+  ros__parameters:
+    thigh_direction_sign: 1.0   # Hardware polarity for thigh joints (1.0 or -1.0)
+    calf_direction_sign: -1.0   # Hardware polarity for calf joints (1.0 or -1.0)
+    forward_gain: 1.0          # Base gain when thigh opens (positive travel past dead zone)
+    backward_gain: 0.3          # Base gain when thigh closes (negative travel past dead zone)
+    positive_follow_start_rad: 0.90  # Dead zone: thigh must travel +this far before follow kicks in
+    negative_follow_start_rad: 0.50  # Dead zone: thigh must travel -this far before follow kicks in
+    calf_position_threshold_scale: 1.0  # Shrinks dead zones as calf moves from 0; eff = threshold - scale * |calf|
+    forward_gain_taper: 1.0     # Scales forward gain UP with |calf|; eff = fwd_gain * (1 + taper * |calf|)
+    backward_gain_taper: 1.0    # Scales backward gain UP with |calf|; eff = bwd_gain * (1 + taper * |calf|)
+    debug_logs: true            # Log per-leg travel, thresholds, gain, and correction each frame
