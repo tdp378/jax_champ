@@ -11,6 +11,7 @@ install(DIRECTORY
 install(PROGRAMS
   scripts/jax_serial_bridge.py
   scripts/jax_display_node.py
+  scripts/jax_wifi_status_publisher.py
   DESTINATION lib/${PROJECT_NAME}
 )
 

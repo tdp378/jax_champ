@@ -9,7 +9,7 @@ import cv2
 import numpy as np
 import rclpy
 from rclpy.node import Node
-from sensor_msgs.msg import Imu
+from sensor_msgs.msg import Imu, BatteryState
 from std_msgs.msg import String
 import os
 import platform
@@ -134,7 +134,8 @@ class JaxDisplayNode(Node):
 
         self.last_imu_time = 0.0
         self.start_time = time.time()
-        self.demo_voltage = self.v_full
+        self.battery_voltage = None
+        self.last_battery_time = 0.0
 
         # ---------------- Mode flash state ----------------
         self.current_mode = "BOOT"
@@ -154,6 +155,20 @@ class JaxDisplayNode(Node):
             Imu,
             imu_topic,
             self.imu_cb,
+            10
+        )
+
+        self.battery_sub = self.create_subscription(
+            BatteryState,
+            'jax/battery',
+            self.battery_cb,
+            10
+        )
+
+        self.wifi_status_sub = self.create_subscription(
+            String,
+            'jax/wifi_status',
+            self.wifi_status_cb,
             10
         )
 
@@ -213,6 +228,13 @@ class JaxDisplayNode(Node):
         self.last_imu_time = time.time()
         self.state.imu_ok = True
 
+    def battery_cb(self, msg: BatteryState):
+        self.battery_voltage = msg.voltage
+        self.last_battery_time = time.time()
+        pct = self.voltage_to_percent(self.battery_voltage, self.v_empty, self.v_full)
+        self.state.battery_voltage = float(self.battery_voltage)
+        self.state.battery_percent = int(pct)
+
     # ============================================================
     # Main update
     # ============================================================
@@ -225,9 +247,6 @@ class JaxDisplayNode(Node):
 
         # Battery
         self.update_battery(now)
-
-        # Wi-Fi
-        self.state.wifi_text, self.state.wifi_bars = self.get_wifi_status()
 
         # CPU temp
         self.state.cpu_temp_c = self.get_cpu_temp()
@@ -250,21 +269,29 @@ class JaxDisplayNode(Node):
 
         self.backend.show(img)
 
+    def wifi_status_cb(self, msg: String):
+        # Expects format: "SSID|bars" (bars: 0-4)
+        try:
+            ssid, bars = msg.data.split("|", 1)
+            self.state.wifi_text = ssid
+            self.state.wifi_bars = int(bars)
+        except Exception:
+            self.state.wifi_text = "ERR"
+            self.state.wifi_bars = 0
+
     # ============================================================
     # Helpers
     # ============================================================
 
     def update_battery(self, now: float):
-        if self.demo_battery_drain:
-            elapsed = now - self.start_time
-            self.demo_voltage = max(self.v_empty, self.v_full - 0.0025 * elapsed)
+        # Use last received battery voltage, or show 0 if missing for >5s
+        if self.battery_voltage is not None and (now - self.last_battery_time) < 5.0:
+            pct = self.voltage_to_percent(self.battery_voltage, self.v_empty, self.v_full)
+            self.state.battery_voltage = float(self.battery_voltage)
+            self.state.battery_percent = int(pct)
         else:
-            wiggle = 0.08 * math.sin(now * 1.2)
-            self.demo_voltage = float(np.clip(15.8 + wiggle, self.v_empty, self.v_full))
-
-        pct = self.voltage_to_percent(self.demo_voltage, self.v_empty, self.v_full)
-        self.state.battery_voltage = float(self.demo_voltage)
-        self.state.battery_percent = int(pct)
+            self.state.battery_voltage = 0.0
+            self.state.battery_percent = 0
 
     @staticmethod
     def voltage_to_percent(voltage: float, v_empty: float, v_full: float) -> float:
@@ -273,42 +300,7 @@ class JaxDisplayNode(Node):
         pct = 100.0 * (voltage - v_empty) / (v_full - v_empty)
         return max(0.0, min(100.0, pct))
 
-    def get_wifi_status(self):
-        try:
-            out = subprocess.check_output(
-                ["bash", "-lc", "iwconfig 2>/dev/null | grep -i --color=never 'Link Quality\\|ESSID' -m 1 || true"],
-                text=True
-            ).strip()
-
-            if not out:
-                return "NO WIFI", 0
-
-            if "Link Quality=" in out:
-                try:
-                    q = out.split("Link Quality=")[1].split()[0]
-                    a, b = q.split("/")
-                    a = float(a)
-                    b = float(b)
-                    ratio = a / b if b > 0 else 0.0
-
-                    if ratio > 0.80:
-                        bars = 4
-                    elif ratio > 0.60:
-                        bars = 3
-                    elif ratio > 0.35:
-                        bars = 2
-                    elif ratio > 0.10:
-                        bars = 1
-                    else:
-                        bars = 0
-
-                    return "WIFI", bars
-                except Exception:
-                    return "WIFI?", 1
-
-            return "WIFI?", 1
-        except Exception:
-            return "NO WIFI", 0
+    # get_wifi_status() removed: now handled by wifi_status_cb
 
     def get_cpu_temp(self):
         try:

@@ -9,4 +9,4 @@ jax_simple_calf_follow_node:
     calf_position_threshold_scale: 1.0  # Shrinks dead zones as calf moves from 0; eff = threshold - scale * |calf|
     forward_gain_taper: 1.0     # Scales forward gain UP with |calf|; eff = fwd_gain * (1 + taper * |calf|)
     backward_gain_taper: 1.0    # Scales backward gain UP with |calf|; eff = bwd_gain * (1 + taper * |calf|)
-    debug_logs: true            # Log per-leg travel, thresholds, gain, and correction each frame
+    debug_logs: false            # Log per-leg travel, thresholds, gain, and correction each frame

@@ -150,6 +150,13 @@ def generate_launch_description():
         parameters=[display_config],
     )
 
+    wifi_status = Node(
+        package="jax_hardware",
+        executable="jax_wifi_status_publisher.py",
+        name="jax_wifi_status_publisher",
+        output="screen",
+    )
+
     return LaunchDescription([
         DeclareLaunchArgument("rviz", default_value="false"),
         DeclareLaunchArgument("serial_port", default_value="/dev/ttyAMA0"),
@@ -163,5 +170,6 @@ def generate_launch_description():
         serial_bridge,
         velocity_smoother,
         display,
+        wifi_status,
         rviz,
     ])
