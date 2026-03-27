@@ -167,7 +167,7 @@ class JaxDisplayNode(Node):
 
         self.wifi_status_sub = self.create_subscription(
             String,
-            'jax/wifi_status',
+            '/jax/wifi_status',
             self.wifi_status_cb,
             10
         )
