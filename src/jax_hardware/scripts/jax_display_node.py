@@ -3,20 +3,20 @@
 import math
 import subprocess
 import time
+import statistics
+import os
+import platform
 from dataclasses import dataclass
 
 import cv2
 import numpy as np
 import rclpy
 from rclpy.node import Node
-from sensor_msgs.msg import Imu, BatteryState
+from sensor_msgs.msg import Imu, BatteryState, Image
 from std_msgs.msg import String
-import os
-import platform
-from PIL import Image
 from luma.core.interface.serial import spi
 from luma.lcd.device import st7789
-
+from PIL import Image as PILImage
 
 @dataclass
 class DisplayState:
@@ -27,68 +27,41 @@ class DisplayState:
     wifi_bars: int = 0
     imu_ok: bool = False
     ros_ok: bool = True
+    cam_ok: bool = False
     cpu_temp_c: float = 0.0
     sim: bool = True
     status_text: str = "STARTING"
 
-
 class DesktopDisplayBackend:
-    def __init__(self, window_name="Jax LCD Preview", scale=3):
+    def __init__(self, window_name="ApeX-1 LCD Preview", scale=3):
         self.window_name = window_name
         self.scale = scale
         cv2.namedWindow(self.window_name, cv2.WINDOW_NORMAL)
 
     def show(self, img_bgr: np.ndarray):
         h, w = img_bgr.shape[:2]
-        preview = cv2.resize(
-            img_bgr,
-            (w * self.scale, h * self.scale),
-            interpolation=cv2.INTER_NEAREST
-        )
+        preview = cv2.resize(img_bgr, (w * self.scale, h * self.scale), interpolation=cv2.INTER_NEAREST)
         cv2.imshow(self.window_name, preview)
         cv2.waitKey(1)
 
     def close(self):
         cv2.destroyAllWindows()
 
-
 class WaveshareDisplayBackend:
     def __init__(self, spi_port=0, spi_device=0, dc_pin=25, rst_pin=27):
-        serial = spi(
-            port=spi_port,
-            device=spi_device,
-            gpio_DC=dc_pin,
-            gpio_RST=rst_pin
-        )
-
-        # The UI renderer already outputs 320x172 landscape.
-        # Initialize the panel to match that orientation directly.
-        # ST7789 native RAM is 320x240; for a 172-tall panel the vertical
-        # offset centres the visible window: (240 - 172) / 2 = 34.
+        serial = spi(port=spi_port, device=spi_device, gpio_DC=dc_pin, gpio_RST=rst_pin)
         self.v_offset = 34
-        self.device = st7789(
-            serial,
-            width=320,
-            height=172,
-            rotate=0,
-        )
+        self.device = st7789(serial, width=320, height=172, rotate=0)
 
     def show(self, img_bgr: np.ndarray):
         img_rgb = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2RGB)
-        pil_img = Image.fromarray(img_rgb)
-
-        # Apply vertical offset: set_window takes (x1, y1, x2, y2)
-        # where x2/y2 are end coordinates (exclusive after -1 inside).
-        self.device.set_window(
-            0, self.v_offset,
-            self.device._w, self.v_offset + self.device._h,
-        )
+        pil_img = PILImage.fromarray(img_rgb)
+        self.device.set_window(0, self.v_offset, self.device._w, self.v_offset + self.device._h)
         buf = list(pil_img.convert("RGB").tobytes())
         self.device.data(buf)
 
     def close(self):
         pass
-
 
 class JaxDisplayNode(Node):
     def __init__(self):
@@ -97,12 +70,13 @@ class JaxDisplayNode(Node):
         # ---------------- Parameters ----------------
         self.declare_parameter("mode_topic", "/jax_mode")
         self.declare_parameter("imu_topic", "/imu/data")
+        self.declare_parameter("cam_topic", "/camera/image_raw")
         self.declare_parameter("sim", True)
-        self.declare_parameter("demo_battery_drain", False)
         self.declare_parameter("battery_voltage_full", 16.8)
-        self.declare_parameter("battery_voltage_empty", 13.2)
+        self.declare_parameter("battery_voltage_empty", 13.6)
+        self.declare_parameter("low_battery_threshold", 14.0) # Trigger for full screen warning
         self.declare_parameter("refresh_hz", 10.0)
-        self.declare_parameter("robot_name", "JAX")
+        self.declare_parameter("robot_name", "APEX-1")
         self.declare_parameter("boot_duration", 2.5)
         self.declare_parameter("mode_flash_duration", 1.2)
         self.declare_parameter("use_lcd", False)
@@ -111,637 +85,181 @@ class JaxDisplayNode(Node):
         self.declare_parameter("dc_pin", 25)
         self.declare_parameter("rst_pin", 27)
 
-        mode_topic = self.get_parameter("mode_topic").get_parameter_value().string_value
-        imu_topic = self.get_parameter("imu_topic").get_parameter_value().string_value
-        self.sim_mode = self.get_parameter("sim").get_parameter_value().bool_value
-        self.demo_battery_drain = self.get_parameter("demo_battery_drain").get_parameter_value().bool_value
-        self.v_full = self.get_parameter("battery_voltage_full").get_parameter_value().double_value
-        self.v_empty = self.get_parameter("battery_voltage_empty").get_parameter_value().double_value
-        refresh_hz = self.get_parameter("refresh_hz").get_parameter_value().double_value
-        self.robot_name = self.get_parameter("robot_name").get_parameter_value().string_value
-        self.boot_duration = self.get_parameter("boot_duration").get_parameter_value().double_value
-        self.mode_flash_duration = self.get_parameter("mode_flash_duration").get_parameter_value().double_value
-        use_lcd_param = self.get_parameter("use_lcd").get_parameter_value().bool_value
-        spi_port = self.get_parameter("spi_port").get_parameter_value().integer_value
-        spi_device = self.get_parameter("spi_device").get_parameter_value().integer_value
-        dc_pin = self.get_parameter("dc_pin").get_parameter_value().integer_value
-        rst_pin = self.get_parameter("rst_pin").get_parameter_value().integer_value
-
+        # Get Params
+        self.v_full = self.get_parameter("battery_voltage_full").value
+        self.v_empty = self.get_parameter("battery_voltage_empty").value
+        self.v_low = self.get_parameter("low_battery_threshold").value
+        self.robot_name = self.get_parameter("robot_name").value
+        self.boot_duration = self.get_parameter("boot_duration").value
+        self.mode_flash_duration = self.get_parameter("mode_flash_duration").value
+        cam_topic = self.get_parameter("cam_topic").value
+        
         # ---------------- State ----------------
         self.state = DisplayState()
-        self.state.sim = self.sim_mode
-        self.state.status_text = "STARTING"
+        self.state.sim = self.get_parameter("sim").value
+        self.v_history = []
+        self.v_window = 50 
+        self.v_calibration = 0.781 
+        self.v_jump_threshold = 1.2
 
         self.last_imu_time = 0.0
+        self.last_cam_time = 0.0
         self.start_time = time.time()
-        self.battery_voltage = None
-        self.last_battery_time = 0.0
-
-        # ---------------- Mode flash state ----------------
-        self.current_mode = "BOOT"
-        self.last_flash_mode = None
-        self.flash_mode = None
-        self.flash_until = 0.0
 
         # ---------------- Subscribers ----------------
-        self.mode_sub = self.create_subscription(
-            String,
-            mode_topic,
-            self.mode_cb,
-            10
-        )
-
-        self.imu_sub = self.create_subscription(
-            Imu,
-            imu_topic,
-            self.imu_cb,
-            10
-        )
-
-        self.battery_sub = self.create_subscription(
-            BatteryState,
-            'jax/battery',
-            self.battery_cb,
-            10
-        )
-
-        self.wifi_status_sub = self.create_subscription(
-            String,
-            '/jax/wifi_status',
-            self.wifi_status_cb,
-            10
-        )
+        self.create_subscription(String, self.get_parameter("mode_topic").value, self.mode_cb, 10)
+        self.create_subscription(Imu, self.get_parameter("imu_topic").value, self.imu_cb, 10)
+        self.create_subscription(BatteryState, 'jax/battery', self.battery_cb, 10)
+        self.create_subscription(String, '/jax/wifi_status', self.wifi_status_cb, 10)
+        self.create_subscription(Image, cam_topic, self.cam_cb, 10)
 
         # ---------------- Backend ----------------
-        on_pi = (
-            os.path.exists("/dev/spidev0.0") and
-            platform.machine() in ["aarch64", "armv7l", "armv6l"]
-        )
+        on_pi = (os.path.exists("/dev/spidev0.0") and platform.machine() in ["aarch64", "armv7l"])
+        if self.get_parameter("use_lcd").value or on_pi:
+            self.backend = WaveshareDisplayBackend(
+                spi_port=self.get_parameter("spi_port").value,
+                spi_device=self.get_parameter("spi_device").value,
+                dc_pin=self.get_parameter("dc_pin").value,
+                rst_pin=self.get_parameter("rst_pin").value
+            )
+        else:
+            self.backend = DesktopDisplayBackend()
 
-        try:
-            if use_lcd_param or on_pi:
-                self.get_logger().info("Using Waveshare LCD backend")
-                self.backend = WaveshareDisplayBackend(
-                    spi_port=spi_port,
-                    spi_device=spi_device,
-                    dc_pin=dc_pin,
-                    rst_pin=rst_pin
-                )
-            else:
-                self.get_logger().info("Using desktop preview backend")
-                self.backend = DesktopDisplayBackend()
-        except Exception as e:
-            self.get_logger().error(f"LCD init failed: {e}")
-            raise
-
-        # ---------------- Timer ----------------
-        period = 1.0 / max(refresh_hz, 1.0)
-        self.timer = self.create_timer(period, self.update)
-
-        self.get_logger().info("Jax display node started")
-        self.get_logger().info(f"Mode topic: {mode_topic}")
-        self.get_logger().info(f"IMU topic:  {imu_topic}")
-
-    # ============================================================
-    # Callbacks
-    # ============================================================
+        self.timer = self.create_timer(1.0 / self.get_parameter("refresh_hz").value, self.update)
 
     def mode_cb(self, msg: String):
         new_mode = msg.data.strip().upper()
-        if not new_mode:
-            new_mode = "UNKNOWN"
-
-        old_mode = self.current_mode
-        self.current_mode = new_mode
+        if new_mode != self.state.mode and new_mode != "BOOT":
+            self.flash_mode = new_mode
+            self.flash_until = time.time() + self.mode_flash_duration
         self.state.mode = new_mode
 
-        now = time.time()
-
-        # Don't flash BOOT repeatedly, and don't retrigger if mode didn't change
-        if new_mode != old_mode and new_mode != "BOOT":
-            self.flash_mode = new_mode
-            self.flash_until = now + self.mode_flash_duration
-            self.last_flash_mode = new_mode
-
     def imu_cb(self, msg: Imu):
-        _ = msg
         self.last_imu_time = time.time()
         self.state.imu_ok = True
 
-    def battery_cb(self, msg: BatteryState):
-        self.battery_voltage = msg.voltage
-        self.last_battery_time = time.time()
-        pct = self.voltage_to_percent(self.battery_voltage, self.v_empty, self.v_full)
-        self.state.battery_voltage = float(self.battery_voltage)
-        self.state.battery_percent = int(pct)
+    def cam_cb(self, msg: Image):
+        self.last_cam_time = time.time()
+        self.state.cam_ok = True
 
-    # ============================================================
-    # Main update
-    # ============================================================
+    def battery_cb(self, msg: BatteryState):
+        calibrated_v = msg.voltage * self.v_calibration
+        if abs(calibrated_v - self.state.battery_voltage) > self.v_jump_threshold:
+            self.v_history = [calibrated_v] 
+        else:
+            self.v_history.append(calibrated_v)
+            if len(self.v_history) > self.v_window: self.v_history.pop(0)
+
+        if self.v_history: self.state.battery_voltage = statistics.median(self.v_history)
+        pct = 100.0 * (self.state.battery_voltage - self.v_empty) / (self.v_full - self.v_empty)
+        self.state.battery_percent = int(max(0.0, min(100.0, pct)))
+
+    def wifi_status_cb(self, msg: String):
+        try:
+            ssid, bars = msg.data.split("|", 1)
+            self.state.wifi_text, self.state.wifi_bars = ssid, int(bars)
+        except: self.state.wifi_text = "ERROR"
 
     def update(self):
         now = time.time()
-
-        # IMU freshness
         self.state.imu_ok = (now - self.last_imu_time) < 1.0
-
-        # Battery
-        self.update_battery(now)
-
-        # CPU temp
-        self.state.cpu_temp_c = self.get_cpu_temp()
-
-        # ROS health / footer
+        self.state.cam_ok = (now - self.last_cam_time) < 2.0
         self.state.ros_ok = rclpy.ok()
-        self.state.status_text = self.build_status_text()
 
-        # Render priority:
-        # 1. boot screen
-        # 2. mode flash
-        # 3. normal dashboard
+        # --- Display Logic Priority ---
         if (now - self.start_time) < self.boot_duration:
             img = self.render_boot_screen(now - self.start_time)
-        elif self.flash_mode is not None and now < self.flash_until:
-            remaining = max(0.0, self.flash_until - now)
-            img = self.render_mode_flash(self.flash_mode, remaining)
+        
+        # NEW: Critical Battery Priority
+        elif self.state.battery_voltage <= self.v_low:
+            img = self.render_low_battery_warning(self.state.battery_voltage, now)
+            
+        elif hasattr(self, 'flash_mode') and now < self.flash_until:
+            img = self.render_mode_flash(self.flash_mode, self.flash_until - now)
         else:
             img = self.render_dashboard(self.state)
-
         self.backend.show(img)
 
-    def wifi_status_cb(self, msg: String):
-        # Expects format: "SSID|bars" (bars: 0-4)
-        try:
-            ssid, bars = msg.data.split("|", 1)
-            self.state.wifi_text = ssid
-            self.state.wifi_bars = int(bars)
-        except Exception:
-            self.state.wifi_text = "ERR"
-            self.state.wifi_bars = 0
+    def draw_led(self, img, x, y, color, label):
+        dim_color = tuple(int(c * 0.3) for c in color)
+        cv2.circle(img, (x, y), 6, dim_color, -1, cv2.LINE_AA)
+        cv2.circle(img, (x, y), 3, color, -1, cv2.LINE_AA)
+        cv2.putText(img, label, (x - 12, y + 15), cv2.FONT_HERSHEY_SIMPLEX, 0.3, (180, 180, 180), 1, cv2.LINE_AA)
 
-    # ============================================================
-    # Helpers
-    # ============================================================
-
-    def update_battery(self, now: float):
-        # Use last received battery voltage, or show 0 if missing for >5s
-        if self.battery_voltage is not None and (now - self.last_battery_time) < 5.0:
-            pct = self.voltage_to_percent(self.battery_voltage, self.v_empty, self.v_full)
-            self.state.battery_voltage = float(self.battery_voltage)
-            self.state.battery_percent = int(pct)
-        else:
-            self.state.battery_voltage = 0.0
-            self.state.battery_percent = 0
-
-    @staticmethod
-    def voltage_to_percent(voltage: float, v_empty: float, v_full: float) -> float:
-        if v_full <= v_empty:
-            return 0.0
-        pct = 100.0 * (voltage - v_empty) / (v_full - v_empty)
-        return max(0.0, min(100.0, pct))
-
-    # get_wifi_status() removed: now handled by wifi_status_cb
-
-    def get_cpu_temp(self):
-        try:
-            with open("/sys/class/thermal/thermal_zone0/temp", "r", encoding="utf-8") as f:
-                raw = f.read().strip()
-            return float(raw) / 1000.0
-        except Exception:
-            pass
-
-        try:
-            out = subprocess.check_output(
-                ["bash", "-lc", "vcgencmd measure_temp 2>/dev/null || true"],
-                text=True
-            ).strip()
-            if "temp=" in out:
-                val = out.split("temp=")[1].split("'")[0]
-                return float(val)
-        except Exception:
-            pass
-
-        return 0.0
-
-    def build_status_text(self):
-        alerts = []
-
-        if self.state.battery_percent <= 15:
-            alerts.append("LOW BAT")
-
-        if not self.state.imu_ok:
-            alerts.append("IMU LOST")
-
-        if self.state.wifi_bars == 0:
-            alerts.append("WIFI LOST")
-
-        if self.state.cpu_temp_c >= 75.0:
-            alerts.append("HOT")
-
-        if self.state.sim:
-            alerts.append("SIM")
-
-        if not alerts:
-            return "ROS OK"
-
-        return " | ".join(alerts)
-
-    # ============================================================
-    # Rendering
-    # ============================================================
-
-    def render_boot_screen(self, t: float) -> np.ndarray:
-        width = 320
-        height = 172
+    def render_low_battery_warning(self, voltage, now) -> np.ndarray:
+        width, height = 320, 172
         img = np.zeros((height, width, 3), dtype=np.uint8)
-
-        BG = (10, 10, 10)
-        PANEL = (24, 24, 24)
-        BORDER = (70, 70, 70)
-        WHITE = (240, 240, 240)
-        LIGHT = (170, 170, 170)
-        CYAN = (220, 220, 60)
-        GREEN = (60, 220, 90)
-
-        img[:] = BG
-        cv2.rectangle(img, (2, 2), (width - 3, height - 3), BORDER, 1)
-        cv2.rectangle(img, (14, 18), (width - 15, height - 19), PANEL, -1)
-
-        pulse = 0.5 + 0.5 * math.sin(2.5 * math.pi * t)
-        line_w = int(220 * pulse)
-        cv2.rectangle(img, (50, 34), (50 + line_w, 40), CYAN, -1)
-
-        cv2.putText(
-            img,
-            self.robot_name[:10],
-            (95, 86),
-            cv2.FONT_HERSHEY_SIMPLEX,
-            1.65,
-            WHITE,
-            3,
-            cv2.LINE_AA
-        )
-
-        subtitle = "INITIALIZING"
-        if self.state.sim:
-            subtitle = "INITIALIZING  SIM"
-
-        cv2.putText(
-            img,
-            subtitle,
-            (84, 112),
-            cv2.FONT_HERSHEY_SIMPLEX,
-            0.55,
-            LIGHT,
-            1,
-            cv2.LINE_AA
-        )
-
-        x = 54
-        y = 128
-        w = 212
-        h = 14
-        progress = min(1.0, max(0.0, t / max(self.boot_duration, 0.001)))
-
-        cv2.rectangle(img, (x, y), (x + w, y + h), WHITE, 1)
-        cv2.rectangle(img, (x + 2, y + 2), (x + w - 2, y + h - 2), (45, 45, 45), -1)
-
-        fill_w = int((w - 4) * progress)
-        if fill_w > 0:
-            cv2.rectangle(img, (x + 2, y + 2), (x + 2 + fill_w, y + h - 2), GREEN, -1)
-
-        cv2.putText(
-            img,
-            "BOOTING",
-            (124, 156),
-            cv2.FONT_HERSHEY_SIMPLEX,
-            0.40,
-            LIGHT,
-            1,
-            cv2.LINE_AA
-        )
-
-        return img
-
-    def render_mode_flash(self, mode: str, remaining: float) -> np.ndarray:
-        width = 320
-        height = 172
-        img = np.zeros((height, width, 3), dtype=np.uint8)
-
-        WHITE = (240, 240, 240)
-        LIGHT = (185, 185, 185)
-
-        bg_color = self.mode_flash_colors(mode)
-
+        
+        # Flashing Red Logic (0.5s intervals)
+        flash = int(now * 2) % 2 == 0
+        bg_color = (0, 0, 180) if flash else (0, 0, 60)
         img[:] = bg_color
-
-        # subtle pulse box
-        pulse = 0.5 + 0.5 * math.sin(10.0 * (self.mode_flash_duration - remaining))
-        alpha_box = int(20 + 30 * pulse)
-
-        cv2.rectangle(img, (18, 18), (width - 19, height - 19), (alpha_box, alpha_box, alpha_box), -1)
-        cv2.rectangle(img, (18, 18), (width - 19, height - 19), WHITE, 2)
-
-        cv2.putText(
-            img,
-            self.robot_name[:10],
-            (24, 36),
-            cv2.FONT_HERSHEY_SIMPLEX,
-            0.55,
-            WHITE,
-            1,
-            cv2.LINE_AA
-        )
-
-        text_size = cv2.getTextSize(mode[:12], cv2.FONT_HERSHEY_SIMPLEX, 1.75, 3)[0]
-        text_x = max(20, (width - text_size[0]) // 2)
-        text_y = 96
-
-        cv2.putText(
-            img,
-            mode[:12],
-            (text_x, text_y),
-            cv2.FONT_HERSHEY_SIMPLEX,
-            1.75,
-            WHITE,
-            3,
-            cv2.LINE_AA
-        )
-
-        cv2.putText(
-            img,
-            "MODE CHANGE",
-            (100, 126),
-            cv2.FONT_HERSHEY_SIMPLEX,
-            0.52,
-            LIGHT,
-            1,
-            cv2.LINE_AA
-        )
-
+        
+        cv2.putText(img, "LOW BATTERY", (35, 75), cv2.FONT_HERSHEY_SIMPLEX, 1.2, (255, 255, 255), 3, cv2.LINE_AA)
+        cv2.putText(img, f"VOLTAGE: {voltage:.2f}V", (65, 115), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 2, cv2.LINE_AA)
+        cv2.putText(img, "CHARGE IMMEDIATELY", (75, 145), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (200, 200, 200), 1, cv2.LINE_AA)
+        
         return img
 
     def render_dashboard(self, s: DisplayState) -> np.ndarray:
-        width = 320
-        height = 172
+        width, height = 320, 172
         img = np.zeros((height, width, 3), dtype=np.uint8)
+        BG_BLACK, CYAN, BLUE, WHITE, GRAY = (10, 5, 5), (255, 230, 100), (255, 100, 0), (240, 240, 240), (40, 40, 40)
+        L_GRN, L_RED = (0, 255, 0), (0, 0, 255)
 
-        BG = (16, 16, 16)
-        PANEL = (34, 34, 34)
-        PANEL2 = (26, 26, 26)
-        BORDER = (70, 70, 70)
-        WHITE = (240, 240, 240)
-        LIGHT = (175, 175, 175)
-        GREEN = (60, 220, 90)
-        YELLOW = (0, 220, 255)
-        RED = (60, 60, 240)
-        BLUE = (220, 170, 60)
-        CYAN = (220, 220, 60)
+        img[:] = BG_BLACK
+        # Battery Section
+        bx, by, bw, bh = 25, 20, 55, 110
+        cv2.rectangle(img, (bx, by), (bx + bw, by + bh), CYAN, 2)
+        fill_h = int((bh - 8) * (s.battery_percent / 100.0))
+        for i in range(fill_h):
+            rel = i / (bh - 8)
+            col = tuple(int(BLUE[j] + (CYAN[j] - BLUE[j]) * rel) for j in range(3))
+            cv2.line(img, (bx + 4, by + bh - 4 - i), (bx + bw - 4, by + bh - 4 - i), col, 1)
+        cv2.putText(img, f"{s.battery_voltage:.1f}V", (bx + 2, by + bh + 28), cv2.FONT_HERSHEY_SIMPLEX, 0.75, WHITE, 2)
 
-        img[:] = BG
-        cv2.rectangle(img, (2, 2), (width - 3, height - 3), BORDER, 1)
+        # WiFi & IP
+        cv2.putText(img, s.wifi_text[:12], (100, 35), cv2.FONT_HERSHEY_SIMPLEX, 0.7, CYAN, 2)
+        for i in range(4):
+            bar_x, bar_h = 265 + (i * 8), 6 + (i * 4) 
+            cv2.rectangle(img, (bar_x, 38 - bar_h), (bar_x + 5, 38), CYAN if i < s.wifi_bars else GRAY, -1)
+        cv2.putText(img, "192.168.1.104", (100, 65), cv2.FONT_HERSHEY_SIMPLEX, 0.65, WHITE, 1)
 
-        # HEADER
-        cv2.rectangle(img, (6, 6), (width - 7, 34), PANEL, -1)
+        # LEDs Row
+        ly = 92
+        self.draw_led(img, 120, ly, L_GRN if s.imu_ok else L_RED, "IMU")
+        self.draw_led(img, 165, ly, L_GRN if s.ros_ok else L_RED, "ROS")
+        self.draw_led(img, 210, ly, L_GRN if s.cam_ok else L_RED, "CAM")
 
-        cv2.putText(
-            img,
-            self.robot_name[:10],
-            (14, 26),
-            cv2.FONT_HERSHEY_SIMPLEX,
-            0.72,
-            WHITE,
-            2,
-            cv2.LINE_AA
-        )
-
-        mode_color = self.mode_color(s.mode, GREEN, YELLOW, RED, BLUE)
-        cv2.rectangle(img, (92, 9), (220, 31), mode_color, -1)
-
-        cv2.putText(
-            img,
-            f"MODE: {s.mode[:10]}",
-            (100, 25),
-            cv2.FONT_HERSHEY_SIMPLEX,
-            0.48,
-            (20, 20, 20),
-            1,
-            cv2.LINE_AA
-        )
-
-        self.draw_wifi_icon(img, 260, 10, s.wifi_bars, s.wifi_text, CYAN)
-
-        # BATTERY PANEL
-        cv2.rectangle(img, (6, 42), (width - 7, 92), PANEL2, -1)
-
-        cv2.putText(
-            img,
-            "BATTERY",
-            (14, 58),
-            cv2.FONT_HERSHEY_SIMPLEX,
-            0.42,
-            LIGHT,
-            1,
-            cv2.LINE_AA
-        )
-
-        self.draw_battery_bar(
-            img,
-            x=14,
-            y=66,
-            w=220,
-            h=18,
-            percent=s.battery_percent
-        )
-
-        cv2.putText(
-            img,
-            f"{s.battery_percent:02d}%",
-            (244, 72),
-            cv2.FONT_HERSHEY_SIMPLEX,
-            0.62,
-            WHITE,
-            2,
-            cv2.LINE_AA
-        )
-
-        cv2.putText(
-            img,
-            f"{s.battery_voltage:0.2f}V",
-            (244, 88),
-            cv2.FONT_HERSHEY_SIMPLEX,
-            0.44,
-            LIGHT,
-            1,
-            cv2.LINE_AA
-        )
-
-        # HEALTH PANEL
-        cv2.rectangle(img, (6, 100), (width - 7, 136), PANEL, -1)
-
-        self.draw_health_chip(img, "IMU", "OK" if s.imu_ok else "LOST", 14, 108, 90, good=s.imu_ok)
-        self.draw_health_chip(img, "ROS", "OK" if s.ros_ok else "DOWN", 112, 108, 90, good=s.ros_ok)
-
-        temp_good = s.cpu_temp_c < 70.0 if s.cpu_temp_c > 0 else True
-        temp_text = f"{s.cpu_temp_c:.0f}C" if s.cpu_temp_c > 0 else "--"
-        self.draw_health_chip(img, "CPU", temp_text, 210, 108, 96, good=temp_good)
-
-        # STATUS BAR
-        cv2.rectangle(img, (6, 144), (width - 7, 166), PANEL2, -1)
-
-        cv2.putText(
-            img,
-            f"STATUS: {s.status_text[:26]}",
-            (12, 160),
-            cv2.FONT_HERSHEY_SIMPLEX,
-            0.50,
-            YELLOW,
-            1,
-            cv2.LINE_AA
-        )
-
+        # Mode Box
+        cv2.rectangle(img, (100, 125), (305, 158), BLUE, -1)
+        cv2.putText(img, f"MODE: {s.mode}", (115, 148), cv2.FONT_HERSHEY_SIMPLEX, 0.75, WHITE, 2)
         return img
 
-    def mode_color(self, mode, green, yellow, red, blue):
-        m = mode.upper()
-        if m in ["ERROR", "FAULT", "STOP"]:
-            return red
-        if m in ["LAY", "POSE", "IDLE"]:
-            return yellow
-        if m in ["STAND"]:
-            return blue
-        return green
+    def render_boot_screen(self, t):
+        img = np.zeros((172, 320, 3), dtype=np.uint8)
+        img[:] = (10, 10, 10)
+        cv2.putText(img, self.robot_name, (60, 90), cv2.FONT_HERSHEY_SIMPLEX, 1.5, (255, 255, 255), 3)
+        return img
 
-    def mode_flash_colors(self, mode):
-        m = mode.upper()
-        if m in ["ERROR", "FAULT", "STOP"]:
-            return (40, 40, 180)   # red-ish in BGR
-        if m in ["LAY", "POSE", "IDLE"]:
-            return (0, 170, 220)   # yellow-ish
-        if m in ["STAND"]:
-            return (170, 110, 40)  # blue-ish accent
-        return (40, 140, 50)       # walk/default green-ish
-
-    def draw_battery_bar(self, img, x, y, w, h, percent):
-        WHITE = (240, 240, 240)
-        GREEN = (60, 220, 90)
-        YELLOW = (0, 220, 255)
-        RED = (60, 60, 240)
-        DARK = (55, 55, 55)
-
-        cv2.rectangle(img, (x, y), (x + w, y + h), WHITE, 1)
-        cv2.rectangle(img, (x + w + 3, y + h // 4), (x + w + 7, y + 3 * h // 4), WHITE, -1)
-
-        inner_pad = 2
-        inner_w = w - 2 * inner_pad
-        fill_w = int(inner_w * max(0, min(100, percent)) / 100.0)
-
-        if percent <= 20:
-            color = RED
-        elif percent <= 50:
-            color = YELLOW
-        else:
-            color = GREEN
-
-        cv2.rectangle(
-            img,
-            (x + inner_pad, y + inner_pad),
-            (x + w - inner_pad, y + h - inner_pad),
-            DARK,
-            -1
-        )
-
-        if fill_w > 0:
-            cv2.rectangle(
-                img,
-                (x + inner_pad, y + inner_pad),
-                (x + inner_pad + fill_w, y + h - inner_pad),
-                color,
-                -1
-            )
-
-    def draw_health_chip(self, img, label, value, x, y, w, good=True):
-        PANEL = (46, 46, 46)
-        BORDER = (80, 80, 80)
-        LIGHT = (180, 180, 180)
-        WHITE = (240, 240, 240)
-        GREEN = (60, 220, 90)
-        RED = (60, 60, 240)
-        YELLOW = (0, 220, 255)
-
-        cv2.rectangle(img, (x, y), (x + w, y + 20), PANEL, -1)
-        cv2.rectangle(img, (x, y), (x + w, y + 20), BORDER, 1)
-
-        cv2.putText(
-            img,
-            label,
-            (x + 6, y + 14),
-            cv2.FONT_HERSHEY_SIMPLEX,
-            0.38,
-            LIGHT,
-            1,
-            cv2.LINE_AA
-        )
-
-        if value in ["OK", "LOST", "DOWN"]:
-            color = GREEN if good else RED
-        else:
-            color = WHITE if good else YELLOW
-
-        cv2.putText(
-            img,
-            value,
-            (x + 40, y + 14),
-            cv2.FONT_HERSHEY_SIMPLEX,
-            0.42,
-            color,
-            1,
-            cv2.LINE_AA
-        )
-
-    def draw_wifi_icon(self, img, x, y, bars, label, color):
-        LIGHT = (140, 140, 140)
-        WHITE = (240, 240, 240)
-
-        bar_w = 6
-        gap = 3
-        base_y = y + 15
-        heights = [4, 7, 10, 13]
-
-        for i in range(4):
-            bx = x + i * (bar_w + gap)
-            by = base_y - heights[i]
-            c = color if i < bars else LIGHT
-            cv2.rectangle(img, (bx, by), (bx + bar_w, base_y), c, -1)
-
-        cv2.putText(
-            img,
-            label[:8],
-            (x - 6, y + 27),
-            cv2.FONT_HERSHEY_SIMPLEX,
-            0.32,
-            WHITE,
-            1,
-            cv2.LINE_AA
-        )
+    def render_mode_flash(self, mode, remaining):
+        img = np.zeros((172, 320, 3), dtype=np.uint8)
+        img[:] = (255, 100, 0)
+        cv2.putText(img, mode, (50, 100), cv2.FONT_HERSHEY_SIMPLEX, 2.0, (255, 255, 255), 4)
+        return img
 
     def destroy_node(self):
         self.backend.close()
         super().destroy_node()
 
-
 def main(args=None):
     rclpy.init(args=args)
     node = JaxDisplayNode()
-
-    try:
-        rclpy.spin(node)
-    except KeyboardInterrupt:
-        pass
+    try: rclpy.spin(node)
+    except KeyboardInterrupt: pass
     finally:
         node.destroy_node()
         rclpy.shutdown()
-
 
 if __name__ == '__main__':
     main()
