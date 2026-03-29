@@ -56,7 +56,6 @@ class JaxModeManager(Node):
             50
         )
 
-        # IMPORTANT: publish directly to the real controller
         self.traj_pub = self.create_publisher(
             JointTrajectory,
             '/jax/combined_joint_trajectory',

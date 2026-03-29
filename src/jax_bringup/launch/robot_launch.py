@@ -58,6 +58,7 @@ def generate_launch_description():
         parameters=[robot_description],
     )
 
+    # CHAMP publishes raw walking trajectory
     quadruped_controller = Node(
         package="champ_base",
         executable="quadruped_controller_node",
@@ -80,20 +81,38 @@ def generate_launch_description():
             {"hardware_connected": False},
             {"close_loop_odom": False},
         ],
+        remappings=[
+            ('/cmd_vel', '/cmd_vel/smooth'),
+        ],
     )
 
+    # MODE MANAGER: walk/static arbitration
+    mode_manager = Node(
+        package="jax_behavior",
+        executable="mode_manager.py",
+        name="jax_mode_manager",
+        output="screen",
+    )
+
+    # CALF FOLLOW: consumes combined trajectory from mode manager
     leg_safety = Node(
         package="jax_locomotion",
         executable="jax_simple_calf_follow.py",
         name="jax_simple_calf_follow_node",
         output="screen",
-        parameters=[simple_calf_follow_config],
+        parameters=[
+            simple_calf_follow_config,
+            {"input_trajectory_topic": "/jax/combined_joint_trajectory"},
+            {"output_trajectory_topic": "/joint_group_effort_controller/joint_trajectory"},
+          
+        ],
         remappings=[
             ('/joint_group_effort_controller/joint_trajectory',
              '/jax/joint_commands/linkage_corrected'),
         ],
     )
 
+    # SERIAL BRIDGE: sends final corrected joint commands to hardware
     serial_bridge = Node(
         package="jax_hardware",
         executable="jax_serial_bridge.py",
@@ -164,6 +183,7 @@ def generate_launch_description():
         DeclareLaunchArgument("local_gui", default_value="false"),
         robot_state_publisher,
         quadruped_controller,
+        mode_manager,
         leg_safety,
         joint_state_publisher_gui,
         joint_state_to_trajectory,
