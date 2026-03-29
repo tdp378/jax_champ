@@ -161,10 +161,10 @@ class JaxKeyboardNode(Node):
     def process_key(self, key: str):
         self.last_key = 'SPACE' if key == ' ' else key
 
-        if key == 'w':
+        if key == 's':
             self.set_cmd(vx_dir=1.0)
             self.status_msg = 'forward'
-        elif key == 's':
+        elif key == 'w':
             self.set_cmd(vx_dir=-1.0)
             self.status_msg = 'backward'
         elif key == 'a':
@@ -192,9 +192,10 @@ class JaxKeyboardNode(Node):
             self.zero_cmd()
             self.status_msg = 'EMERGENCY STOP'
         elif key == 'm':
-            self.zero_cmd()
             self.publish_mode(self.walk_mode_name)
-            self.status_msg = 'mode -> walk'
+            # SMALL ROTATION TO FORCE GAIT (march in place-ish)
+            self.set_cmd(vx_dir=-0.2)
+            self.status_msg = 'mode -> walk (auto step)'
         elif key == '1':
             self.zero_cmd()
             self.publish_mode(self.stand_mode_name)
