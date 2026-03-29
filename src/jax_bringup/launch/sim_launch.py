@@ -40,7 +40,12 @@ def generate_launch_description():
     links_config = os.path.join(jax_locomotion, "config", "links", "links.yaml")
     gait_config = os.path.join(jax_locomotion, "config", "gait", "gait.yaml")
     motion_config = os.path.join(jax_locomotion, "config", "motion", "motion.yaml")
-
+    simple_calf_follow_config = os.path.join(
+        jax_locomotion,
+        "config",
+        "follow",
+        "jax_simple_calf_follow.yaml",
+    )
     world = os.path.join(jax_description, "worlds", "default.sdf")
     rviz_config = os.path.join(jax_bringup, "rviz", "rviz.rviz")
 
@@ -99,6 +104,14 @@ def generate_launch_description():
         ],
     )
 
+    velocity_smoother = Node(
+        package="jax_teleop",
+        executable="jax_velocity_smoother.py",
+        name="jax_velocity_smoother",
+        output="screen",
+        parameters=[{"use_sim_time": True}],
+    )
+
     quadruped_controller = Node(
         package="champ_base",
         executable="quadruped_controller_node",
@@ -133,6 +146,21 @@ def generate_launch_description():
         name="jax_mode_manager",
         output="screen",
         parameters=[{"use_sim_time": True}],
+    )
+
+    leg_safety = Node(
+        package="jax_locomotion",
+        executable="jax_simple_calf_follow.py",
+        name="jax_simple_calf_follow_node",
+        output="screen",
+        parameters=[
+            simple_calf_follow_config,
+            {"use_sim_time": True},
+            {"input_trajectory_topic": "/jax/combined_joint_trajectory"},
+            {"output_trajectory_topic": "/joint_group_effort_controller/joint_trajectory"},
+            {"input_joint_state_topic": "/joint_states_raw"},
+            {"output_joint_state_topic": "/joint_states"},
+        ],
     )
 
     joint_state_publisher_gui = Node(
@@ -181,14 +209,6 @@ def generate_launch_description():
         ],
     )
 
-    velocity_smoother = Node(
-        package="jax_teleop",
-        executable="jax_velocity_smoother.py",
-        name="jax_velocity_smoother",
-        output="screen",
-        parameters=[{"use_sim_time": True}],
-    )
-
     rviz = Node(
         package="rviz2",
         executable="rviz2",
@@ -207,13 +227,14 @@ def generate_launch_description():
             robot_state_publisher,
             spawn_robot,
             bridge,
+            velocity_smoother,
             quadruped_controller,
             mode_manager,
+            leg_safety,
             joint_state_publisher_gui,
             joint_state_to_trajectory,
             joint_state_spawner,
             trajectory_spawner,
-            velocity_smoother,
             rviz,
         ]
     )

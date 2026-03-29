@@ -14,6 +14,31 @@ class JaxSimpleCalfFollowNode(Node):
     def __init__(self) -> None:
         super().__init__('jax_simple_calf_follow_node')
 
+        self.input_traj_topic = str(
+            self.declare_parameter(
+                'input_trajectory_topic',
+                '/jax/combined_joint_trajectory'
+            ).value
+        )
+        self.output_traj_topic = str(
+            self.declare_parameter(
+                'output_trajectory_topic',
+                '/joint_group_effort_controller/joint_trajectory'
+            ).value
+        )
+        self.input_joint_state_topic = str(
+            self.declare_parameter(
+                'input_joint_state_topic',
+                '/joint_states_raw'
+            ).value
+        )
+        self.output_joint_state_topic = str(
+            self.declare_parameter(
+                'output_joint_state_topic',
+                '/joint_states'
+            ).value
+        )
+
         self.thigh_direction_sign = float(
             self.declare_parameter('thigh_direction_sign', 1.0).value
         )
@@ -56,33 +81,35 @@ class JaxSimpleCalfFollowNode(Node):
 
         self.traj_sub = self.create_subscription(
             JointTrajectory,
-            '/jax/walk_joint_trajectory_raw',
+            self.input_traj_topic,
             self.joint_callback,
             10,
         )
 
         self.traj_pub = self.create_publisher(
             JointTrajectory,
-            '/joint_group_effort_controller/joint_trajectory',
+            self.output_traj_topic,
             10,
         )
 
         self.js_sub = self.create_subscription(
             JointState,
-            '/joint_states_raw',
+            self.input_joint_state_topic,
             self.js_callback,
             10,
         )
 
         self.js_pub = self.create_publisher(
             JointState,
-            '/joint_states',
+            self.output_joint_state_topic,
             10,
         )
 
         self.get_logger().info(
             'Jax simple calf follow node started '
-            f'(thigh_sign={self.thigh_direction_sign}, '
+            f'(traj: {self.input_traj_topic} -> {self.output_traj_topic}, '
+            f'joint_states: {self.input_joint_state_topic} -> {self.output_joint_state_topic}, '
+            f'thigh_sign={self.thigh_direction_sign}, '
             f'calf_sign={self.calf_direction_sign}, '
             f'fwd_gain={self.forward_gain}, bwd_gain={self.backward_gain}, '
             f'pos_start={self.pos_follow_start}, '
@@ -95,19 +122,16 @@ class JaxSimpleCalfFollowNode(Node):
         thigh_eff = thigh * self.thigh_direction_sign
         calf_eff = calf * self.calf_direction_sign
 
-        # Record thigh origin on first call per leg
         if leg not in self.prev_state:
             self.prev_state[leg] = {'thigh_eff_origin': thigh_eff}
 
         origin = self.prev_state[leg]['thigh_eff_origin']
         thigh_travel = thigh_eff - origin
 
-        # Use commanded calf position for threshold scaling and gain taper
         calf_offset = abs(calf)
         eff_pos_start = max(0.0, self.pos_follow_start - self.calf_thresh_scale * calf_offset)
         eff_neg_start = max(0.0, self.neg_follow_start - self.calf_thresh_scale * calf_offset)
 
-        # Dead zone
         if thigh_travel > eff_pos_start:
             active_travel = thigh_travel - eff_pos_start
         elif thigh_travel < -eff_neg_start:
@@ -115,9 +139,6 @@ class JaxSimpleCalfFollowNode(Node):
         else:
             active_travel = 0.0
 
-        # Select gain and taper based on thigh direction
-        # Use signed calf: backward taper scales with -calf (closed=more, open=less)
-        #                   forward taper scales with +calf (open=more, closed=less)
         if active_travel > 0.0:
             eff_gain = self.backward_gain * max(0.0, 1.0 + self.backward_taper * (-calf))
         elif active_travel < 0.0:
@@ -125,7 +146,6 @@ class JaxSimpleCalfFollowNode(Node):
         else:
             eff_gain = 0.0
 
-        # Direct correction: output = input + follow offset (no accumulation)
         correction_eff = -active_travel * eff_gain
         out_calf_eff = calf_eff + correction_eff
 
