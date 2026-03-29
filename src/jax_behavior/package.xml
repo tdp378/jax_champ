@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>jax_behavior</name>
+  <version>0.0.0</version>
+  <description>Pose and Mode Management for Jax</description>
+  <maintainer email="tdp378@yahoo.com">tdp378</maintainer>
+  <license>Apache-2.0</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <buildtool_depend>ament_cmake_python</buildtool_depend>
+
+  <depend>rclpy</depend>
+  <depend>std_msgs</depend>
+  <depend>trajectory_msgs</depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>
